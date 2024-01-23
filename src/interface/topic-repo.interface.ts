@@ -1,3 +1,4 @@
+import { TopicType } from '@/dto/type.dto';
 import { TopicAttributes } from '@/models/topic.model';
 
 export interface ITopicRepo {
@@ -6,10 +7,10 @@ export interface ITopicRepo {
     ): Promise<TopicAttributes>;
 
     // 사용자의 Topic 수
-    count(userId: string): Promise<number>;
+    count(userId: string, type?: TopicType): Promise<number>;
 
-    // 사용자의 특정 Topic
-    getTopicByUserIdAndId(userId: string, topicId: string): Promise<TopicAttributes | null>;
+    // 특정 Topic의 상세 데이터
+    getTopicByTopicId(topicId: string): Promise<TopicAttributes | null>;
 
     // 사용자의 모든 Topic list
     getAllTopicsByUserId(userId: string): Promise<TopicAttributes[] | null>;
@@ -23,4 +24,6 @@ export interface ITopicRepo {
 
     // Topic id로 특정 Topic data 삭제
     deleteTopicById(id: string): Promise<number>;
+
+    deleteTopicsById(id: string[]): Promise<number>;
 }

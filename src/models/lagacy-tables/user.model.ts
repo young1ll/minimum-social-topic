@@ -1,19 +1,22 @@
-import db from '@/utils/dbseed';
-import { DataTypes, Model } from 'sequelize';
+import { DataTypes, Model, Sequelize } from 'sequelize';
 
-class User extends Model {}
-User.init(
-    {
-        userId: {
-            type: DataTypes.STRING,
-            primaryKey: true,
+const User = ({ sequelize }: { sequelize: Sequelize }) => {
+    class User extends Model {}
+    User.init(
+        {
+            // id: {
+            //     type: DataTypes.STRING,
+            //     primaryKey: true,
+            // },
         },
-    },
-    {
-        modelName: 'user',
-        tableName: 'users',
-        sequelize: db.sequelize,
-    }
-);
+        {
+            modelName: 'user',
+            tableName: 'users',
+            sequelize,
+        }
+    );
+
+    return User;
+};
 
 export default User;

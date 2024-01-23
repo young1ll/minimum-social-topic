@@ -1,34 +1,103 @@
+import e, { NextFunction, Request, Response } from 'express';
+import { RequestValidator } from '@/utils/request-validator';
 import {
     DeleteTopicReq,
+    DeleteTopicsReq,
     GetAllTopicReq,
     GetTopicReq,
     TopicCreateReq,
     UpdateTopicReq,
 } from '@/dto/topic.dto';
-import { TopicRepository } from '@/repository/topic.repo';
-import { TopicService } from '@/services/topic.service';
-import { RequestValidator } from '@/utils/request-validator';
-import e, { NextFunction, Request, Response } from 'express';
+import { TopicType, TypeCreateReq, isTopicType } from '@/dto/type.dto';
+
+import { PollTopicAttributes } from '@/models/pollTopic.model';
+import { EventTopicAttributes } from '@/models/eventTopic.model';
+import { CandidateService, TopicService, TypeService } from '@/services';
+import {
+    CandidateRepository,
+    EventRepository,
+    PollRepository,
+    TopicRepository,
+} from '@/repository';
+
+const topicRepo = new TopicRepository();
+const pollRepo = new PollRepository();
+const eventRepo = new EventRepository();
+const candidateRepo = new CandidateRepository();
 
 const router = e.Router();
-export const topicService = new TopicService(new TopicRepository());
+export const topicService = new TopicService({ topicRepo });
+export const typeService = new TypeService({ pollRepo, eventRepo });
+export const candidateService = new CandidateService({ candidateRepo });
 
 // POST /topic - Create a new topic
 router.post('/topic', async (req: Request, res: Response) => {
     try {
-        const { errors, input } = await RequestValidator(TopicCreateReq, req.body);
-        if (errors) return res.status(400).json({ errors });
-
-        const { userId, title, type, ...rest } = input;
-
-        const data = await topicService.createTopic({
+        const {
             userId,
-            title,
             type,
-            ...rest,
+            title,
+            status,
+            isSecretVote,
+            castingVote,
+            resultOpen,
+            startDate,
+            endDate,
+            content,
+            eventDate,
+            eventLocation,
+        } = req.body;
+
+        if (!isTopicType(type))
+            return res.status(400).json({ error: 'Invalid type: type must be "poll" or "event"' });
+
+        const topicReq = {
+            userId,
+            type,
+            title,
+            status,
+            isSecretVote,
+            castingVote,
+            resultOpen,
+            startDate,
+            endDate,
+        };
+
+        // topic validation
+        const { errors: topicValidErrors, input: topicInput } = await RequestValidator(
+            TopicCreateReq,
+            topicReq
+        );
+        if (topicValidErrors) return res.status(400).json({ topicValidErrors });
+
+        const topicData = await topicService.createTopic({ ...topicInput });
+
+        // type validation
+        const { errors: typeInputValidErrors, input: typeInput } = await RequestValidator(
+            TypeCreateReq,
+            {
+                topicId: topicData.id,
+                content,
+                eventDate,
+                eventLocation,
+            }
+        );
+        if (typeInputValidErrors) return res.status(400).json({ typeInputValidErrors });
+
+        const typeData = await typeService.createType({
+            type,
+            input: typeInput as PollTopicAttributes | EventTopicAttributes,
         });
 
-        return res.status(200).json({ data });
+        // - [x] topic type data
+        // - [ ] topic candidateItem datas
+
+        const result = {
+            ...topicData,
+            ...typeData,
+        };
+
+        return res.status(200).json({ data: result });
     } catch (error) {
         const err = error as Error;
         return res.status(500).json({ error: err.message });
@@ -36,19 +105,31 @@ router.post('/topic', async (req: Request, res: Response) => {
 });
 
 // GET /topic - Get topic by userId and topicId
+// Detail 포함한 단일 Topic을 반환
 // query: userId, topicId
 router.get('/topic', async (req: Request, res: Response) => {
     try {
         const { errors, input } = await RequestValidator(GetTopicReq, {
-            userId: req.query.userId,
             topicId: req.query.topicId,
         });
         if (errors) return res.status(400).json({ errors });
 
-        const { userId, topicId } = input;
-        const data = await topicService.getTopicByUserIdAndId(userId as string, topicId as string);
+        const { topicId } = input;
+        const topicData = await topicService.getTopicByTopicId(topicId as string);
+        const type = topicData?.type as TopicType;
+        const typeData = await typeService.getTypeByTopicId({ topicId: topicId as string, type });
+        const candidateData = await candidateService.getAllCandidatesByTopicId(topicId as string);
 
-        return res.status(200).json({ data });
+        const result = {
+            ...topicData,
+            ...typeData,
+            ...candidateData,
+        };
+        // - [x] topic type data
+        // - [ ] topic candidateItem datas
+        // - [ ] topic result data
+
+        return res.status(200).json({ data: result });
     } catch (error) {
         const err = error as Error;
         return res.status(500).json({ error: err.message });
@@ -75,6 +156,9 @@ router.get('/topics', async (req: Request, res: Response) => {
             data = await topicService.getAllTopicsByUserId(input.userId as string);
         }
 
+        // 상세 데이터는 미포함
+        // CandidateItemCount: 비정규화 컬럼
+
         return res.status(200).json({ data });
     } catch (error) {
         const err = error as Error;
@@ -83,19 +167,32 @@ router.get('/topics', async (req: Request, res: Response) => {
 });
 
 // GET /tocpic-count - Get topic count
-// query: userId
+// query: userId, type
 router.get('/topic-count', async (req: Request, res: Response) => {
     try {
-        const { userId } = req.query;
-        const count = await topicService.count(userId as string);
+        const { userId, type } = req.query;
 
-        return res.status(200).json({ count });
+        if (type) {
+            // type이 있다면 type 검사
+            if (!isTopicType(type as string)) {
+                return res
+                    .status(400)
+                    .json({ error: 'Invalid type: type must be "poll" or "event"' });
+            }
+
+            const count = await topicService.count(userId as string, type as TopicType);
+            return res.status(200).json({ data: count });
+        }
+
+        const count = await topicService.count(userId as string);
+        return res.status(200).json({ data: count });
     } catch (error) {
         const err = error as Error;
         return res.status(500).json({ error: err.message });
     }
 });
 
+// PUT /topic - Update topic by topicId
 router.put('/topic', async (req: Request, res: Response) => {
     try {
         const { errors, input } = await RequestValidator(UpdateTopicReq, req.body);
@@ -107,7 +204,7 @@ router.put('/topic', async (req: Request, res: Response) => {
         if (data == 0) {
             return res.status(200).json({ message: 'No Data Updated', data });
         } else {
-            const result = await topicService.getTopicByUserIdAndId(userId, topicId);
+            const result = await topicService.getTopicByTopicId(topicId);
 
             return res.status(200).json({ message: 'Data Updated Successfully', result });
         }
@@ -123,7 +220,7 @@ router.delete('/topic', async (req: Request, res: Response) => {
         if (errors) return res.status(400).json({ errors });
 
         const { topicId, userId } = input;
-        const data = await topicService.getTopicByUserIdAndId(userId, topicId);
+        const data = await topicService.getTopicByTopicId(topicId);
 
         if (!data) {
             return res.status(400).json({ message: 'Data Not Found' });
@@ -137,6 +234,28 @@ router.delete('/topic', async (req: Request, res: Response) => {
         return res
             .status(200)
             .json({ message: 'Data Deleted Successfully', data: { deleted: result, data } });
+    } catch (error) {
+        const err = error as Error;
+        return res.status(500).json({ error: err.message });
+    }
+});
+
+// DELETE /topics - Delete topics by topicIds
+// body: topicIds
+// topicId 배열을 받아 해당하는 데이터 모두 제거
+router.delete('/topics', async (req: Request, res: Response) => {
+    try {
+        const { errors, input } = await RequestValidator(DeleteTopicsReq, req.body);
+        if (errors) return res.status(400).json({ errors });
+
+        const { topicIds } = input;
+        const data = await topicService.deleteTopicsById(topicIds);
+
+        if (data == 0) {
+            return res.status(200).json({ message: 'No Data Deleted' });
+        }
+
+        return res.status(200).json({ message: 'Data Deleted Successfully', data });
     } catch (error) {
         const err = error as Error;
         return res.status(500).json({ error: err.message });

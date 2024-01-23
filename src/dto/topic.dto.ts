@@ -1,5 +1,6 @@
 import {
     Allow,
+    IsArray,
     IsBoolean,
     IsDate,
     IsEmpty,
@@ -11,6 +12,7 @@ import {
 } from 'class-validator';
 
 export class TopicCreateReq {
+    // topic entity
     @IsString()
     @IsNotEmpty()
     userId: string;
@@ -50,10 +52,6 @@ export class TopicCreateReq {
 }
 
 export class GetTopicReq {
-    @IsString()
-    @IsNotEmpty()
-    userId: string;
-
     @IsUUID()
     @IsNotEmpty()
     topicId: string;
@@ -116,4 +114,10 @@ export class DeleteTopicReq {
     @IsUUID()
     @IsNotEmpty()
     topicId: string;
+}
+
+export class DeleteTopicsReq {
+    @IsArray()
+    @IsNotEmpty()
+    topicIds: string[];
 }

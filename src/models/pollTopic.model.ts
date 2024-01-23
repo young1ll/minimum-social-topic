@@ -1,22 +1,32 @@
-import db from '@/utils/dbseed';
-import { DataTypes } from 'sequelize';
+import { DataTypes, Sequelize } from 'sequelize';
 import { Topic } from './topic.model';
 
 export interface PollTopicAttributes {
     topicId: string;
-    content?: string;
+    content: string;
+
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
-export const PollTopic = db.sequelize.define('pollTopic', {
-    topicId: {
-        type: DataTypes.UUID,
-        references: {
-            model: 'topic',
-            key: 'id',
+export const PollTopic = ({ sequelize }: { sequelize: Sequelize }) => {
+    return sequelize.define(
+        'pollTopic',
+        {
+            // topicId: {
+            //     type: DataTypes.UUID,
+            //     references: {
+            //         model: Topic({ sequelize }),
+            //         key: 'id',
+            //     },
+            // },
+            content: {
+                type: DataTypes.STRING,
+                allowNull: false,
+            },
         },
-    },
-    content: {
-        type: DataTypes.STRING,
-        allowNull: true,
-    },
-});
+        {
+            tableName: 'poll_topics',
+        }
+    );
+};

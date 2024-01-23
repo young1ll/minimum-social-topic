@@ -1,7 +1,12 @@
+import { TopicType } from '@/dto/type.dto';
 import { ITopicRepo } from '@/interface/topic-repo.interface';
-import { Topic, TopicAttributes } from '@/models/topic.model';
+import db from '@/models';
+import { TopicAttributes } from '@/models/topic.model';
+import { Op } from 'sequelize';
 import { Sequelize } from 'sequelize';
 import { v4 as uuidv4 } from 'uuid';
+
+const Topic = db.Topic;
 
 export class TopicRepository implements ITopicRepo {
     async create({
@@ -22,20 +27,20 @@ export class TopicRepository implements ITopicRepo {
 
         return data.toJSON();
     }
-    async count(userId: string): Promise<number> {
+    async count(userId: string, type?: TopicType): Promise<number> {
         const data = Topic.count({
             where: {
                 userId,
+                ...(type !== undefined && { type }),
             },
         });
 
         return data;
     }
-    async getTopicByUserIdAndId(userId: string, topicId: string): Promise<TopicAttributes | null> {
+    async getTopicByTopicId(topicId: string): Promise<TopicAttributes | null> {
         const data = await Topic.findOne({
             where: {
                 id: topicId,
-                userId,
             },
         });
 
@@ -69,13 +74,23 @@ export class TopicRepository implements ITopicRepo {
 
         return Promise.resolve(data[0]);
     }
-    deleteTopicById(id: string): Promise<number> {
-        const data = Topic.destroy({
+    async deleteTopicById(id: string): Promise<number> {
+        const data = await Topic.destroy({
             where: {
                 id,
             },
         });
+
         return data;
-        // throw new Error('Method not implemented.');
+    }
+
+    async deleteTopicsById(id: string[]): Promise<number> {
+        const data = await Topic.destroy({
+            where: {
+                id: { [Op.in]: id },
+            },
+        });
+
+        return data;
     }
 }
