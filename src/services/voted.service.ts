@@ -1,4 +1,5 @@
 import { IVotedItemRepo } from '@/interface/voted-repo.interface';
+import db from '@/models';
 import { VotedItemAttributes } from '@/models/votedItem.model';
 
 export class VotedItemService {
@@ -12,6 +13,7 @@ export class VotedItemService {
         ids: Pick<VotedItemAttributes, 'topicId' | 'userId' | 'candidateItemId'>,
         input: Partial<Omit<VotedItemAttributes, 'id' | 'topicId' | 'userId' | 'candidateItemId'>>
     ) {
+        const transaction = await db.sequelize.transaction();
         try {
             const { candidateItemId, topicId, userId } = ids;
 
@@ -20,8 +22,16 @@ export class VotedItemService {
             if (!userId) throw new Error('userId is required');
             if (!input) return null;
 
-            return await this._votedItemRepository.create(ids, input);
+            const result = await this._votedItemRepository.create({
+                transaction,
+                ids,
+                input,
+            });
+            await transaction.commit();
+
+            return result;
         } catch (error) {
+            await transaction.rollback();
             throw error;
         }
     }
@@ -30,7 +40,9 @@ export class VotedItemService {
         try {
             if (!votedId) throw new Error('votedId is required');
 
-            return await this._votedItemRepository.getVotedItemById(votedId);
+            const result = await this._votedItemRepository.getVotedItemById(votedId);
+
+            return result;
         } catch (error) {
             throw error;
         }
@@ -40,7 +52,9 @@ export class VotedItemService {
         try {
             if (!userId) throw new Error('userId is required');
 
-            return await this._votedItemRepository.getVotedItemByUserId(userId);
+            const result = await this._votedItemRepository.getVotedItemByUserId(userId);
+
+            return result;
         } catch (error) {
             throw error;
         }
@@ -54,7 +68,12 @@ export class VotedItemService {
             if (!userId) throw new Error('userId is required');
             if (!topicID) throw new Error('topicID is required');
 
-            return await this._votedItemRepository.getVotedItemByUserIdAndTopicId(userId, topicID);
+            const result = await this._votedItemRepository.getVotedItemByUserIdAndTopicId(
+                userId,
+                topicID
+            );
+
+            return result;
         } catch (error) {
             throw error;
         }
@@ -84,32 +103,57 @@ export class VotedItemService {
         votedId: string,
         input: Partial<Omit<VotedItemAttributes, 'id'>>
     ): Promise<number> {
+        const transaction = await db.sequelize.transaction();
         try {
             if (!votedId) throw new Error('votedId is required');
             if (!input) return 0;
 
-            return await this._votedItemRepository.updatedVotedItem(votedId, input);
+            const result = await this._votedItemRepository.updatedVotedItem({
+                transaction,
+                votedId,
+                input,
+            });
+            await transaction.commit();
+
+            return result;
         } catch (error) {
+            await transaction.rollback();
             throw error;
         }
     }
 
     async deleteVotedItem(votedId: string): Promise<number> {
+        const transaction = await db.sequelize.transaction();
         try {
             if (!votedId) throw new Error('votedId is required');
 
-            return await this._votedItemRepository.deleteVotedItem(votedId);
+            const result = await this._votedItemRepository.deleteVotedItem({
+                transaction,
+                votedId,
+            });
+            await transaction.commit();
+
+            return result;
         } catch (error) {
+            await transaction.rollback();
             throw error;
         }
     }
 
     async deleteVotedItems(votedIds: string[]): Promise<number> {
+        const transaction = await db.sequelize.transaction();
         try {
             if (votedIds.length === 0) throw new Error('votedIds is required');
 
-            return await this._votedItemRepository.deleteVotedItems(votedIds);
+            const result = await this._votedItemRepository.deleteVotedItems({
+                transaction,
+                votedIds,
+            });
+            await transaction.commit();
+
+            return result;
         } catch (error) {
+            await transaction.rollback();
             throw error;
         }
     }

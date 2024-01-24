@@ -1,16 +1,25 @@
 import { ICandidateRepo } from '@/interface/candidate-repo.interface';
 import db from '@/models';
 import { CandidateItemAttributes } from '@/models/candidateItem.model';
-import { Op } from 'sequelize';
+import { Op, Transaction } from 'sequelize';
 
 const CandidateItem = db.CandidateItem;
 
 export class CandidateRepository implements ICandidateRepo {
-    async create(input: Omit<CandidateItemAttributes, 'id'>): Promise<CandidateItemAttributes> {
+    async create({
+        transaction,
+        input,
+    }: {
+        transaction: Transaction;
+        input: Omit<CandidateItemAttributes, 'id'>;
+    }): Promise<CandidateItemAttributes> {
         // const data = Promise.resolve(input as any);
-        const data = await CandidateItem.create({
-            ...input,
-        });
+        const data = await CandidateItem.create(
+            {
+                ...input,
+            },
+            { transaction }
+        );
 
         // return data;
         return data.toJSON();
@@ -51,33 +60,53 @@ export class CandidateRepository implements ICandidateRepo {
         return data;
     }
 
-    async updateCandidateItem(
-        candidateId: string,
-        input: Partial<Omit<CandidateItemAttributes, 'id'>>
-    ): Promise<number> {
+    async updateCandidateItem({
+        transaction,
+        candidateId,
+        input,
+    }: {
+        transaction: Transaction;
+        candidateId: string;
+        input: Partial<Omit<CandidateItemAttributes, 'id'>>;
+    }): Promise<number> {
         const data = await CandidateItem.update(input, {
             where: {
                 id: candidateId,
             },
+            transaction,
         });
 
         return data[0];
     }
-    async deleteCandidateItem(candidateId: string): Promise<number> {
+    async deleteCandidateItem({
+        transaction,
+        candidateId,
+    }: {
+        transaction: Transaction;
+        candidateId: string;
+    }): Promise<number> {
         const data = await CandidateItem.destroy({
             where: {
                 id: candidateId,
             },
+            transaction,
         });
 
         return data;
     }
 
-    async deleteCandidatesByIds(candidateIds: string[]): Promise<number> {
+    async deleteCandidatesByIds({
+        transaction,
+        candidateIds,
+    }: {
+        transaction: Transaction;
+        candidateIds: string[];
+    }): Promise<number> {
         const data = await CandidateItem.destroy({
             where: {
                 id: { [Op.in]: candidateIds },
             },
+            transaction,
         });
 
         return data;

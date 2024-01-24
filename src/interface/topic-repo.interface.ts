@@ -1,10 +1,15 @@
 import { TopicType } from '@/dto/type.dto';
 import { TopicAttributes } from '@/models/topic.model';
+import { Transaction } from 'sequelize';
 
 export interface ITopicRepo {
-    create(
-        createInput: Pick<TopicAttributes, 'userId' | 'title' | 'type'>
-    ): Promise<TopicAttributes>;
+    create({
+        transaction,
+        input,
+    }: {
+        transaction: Transaction;
+        input: Pick<TopicAttributes, 'userId' | 'title' | 'type'>;
+    }): Promise<TopicAttributes>;
 
     // 사용자의 Topic 수
     count(userId: string, type?: TopicType): Promise<number>;
@@ -20,10 +25,24 @@ export interface ITopicRepo {
     searchTopic(query: string): Promise<TopicAttributes[] | null>;
 
     // Topic id로 특정 Topic data 수정
-    updateTopicById(id: string, topic: Partial<TopicAttributes>): Promise<number>;
+    updateTopicById({
+        transaction,
+        id,
+        topic,
+    }: {
+        transaction: Transaction;
+        id: string;
+        topic: Partial<TopicAttributes>;
+    }): Promise<number>;
 
     // Topic id로 특정 Topic data 삭제
-    deleteTopicById(id: string): Promise<number>;
+    deleteTopicById({ transaction, id }: { transaction: Transaction; id: string }): Promise<number>;
 
-    deleteTopicsById(id: string | string[]): Promise<number>;
+    deleteTopicsById({
+        transaction,
+        ids,
+    }: {
+        transaction: Transaction;
+        ids: string | string[];
+    }): Promise<number>;
 }

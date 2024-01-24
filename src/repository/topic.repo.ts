@@ -2,7 +2,7 @@ import { TopicType } from '@/dto/type.dto';
 import { ITopicRepo } from '@/interface/topic-repo.interface';
 import db from '@/models';
 import { TopicAttributes } from '@/models/topic.model';
-import { Op } from 'sequelize';
+import { Op, Transaction } from 'sequelize';
 import { Sequelize } from 'sequelize';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -10,20 +10,23 @@ const Topic = db.Topic;
 
 export class TopicRepository implements ITopicRepo {
     async create({
-        userId,
-        type,
-        title,
-        ...rest
-    }: Pick<TopicAttributes, 'userId' | 'title' | 'type'> &
-        Partial<TopicAttributes>): Promise<TopicAttributes> {
+        transaction,
+        input: { userId, type, title, ...rest },
+    }: {
+        transaction: Transaction;
+        input: Pick<TopicAttributes, 'userId' | 'title' | 'type'> & Partial<TopicAttributes>;
+    }): Promise<TopicAttributes> {
         const topicId = uuidv4();
-        const data = await Topic.create({
-            id: topicId,
-            userId,
-            type,
-            title,
-            ...rest,
-        });
+        const data = await Topic.create(
+            {
+                id: topicId,
+                userId,
+                type,
+                title,
+                ...rest,
+            },
+            { transaction }
+        );
 
         return data.toJSON();
     }
@@ -65,30 +68,53 @@ export class TopicRepository implements ITopicRepo {
         return data?.map((topic) => topic.toJSON()) || null;
         // throw new Error('Method not implemented.');
     }
-    async updateTopicById(id: string, topic: Partial<TopicAttributes>): Promise<number> {
+    async updateTopicById({
+        transaction,
+        id,
+        topic,
+    }: {
+        transaction: Transaction;
+        id: string;
+        topic: Partial<TopicAttributes>;
+    }): Promise<number> {
         const data = await Topic.update(topic, {
             where: {
                 id,
             },
+            transaction,
         });
 
         return Promise.resolve(data[0]);
     }
-    async deleteTopicById(id: string): Promise<number> {
+    async deleteTopicById({
+        transaction,
+        id,
+    }: {
+        transaction: Transaction;
+        id: string;
+    }): Promise<number> {
         const data = await Topic.destroy({
             where: {
                 id,
             },
+            transaction,
         });
 
         return data;
     }
 
-    async deleteTopicsById(id: string[]): Promise<number> {
+    async deleteTopicsById({
+        transaction,
+        ids,
+    }: {
+        transaction: Transaction;
+        ids: string[];
+    }): Promise<number> {
         const data = await Topic.destroy({
             where: {
-                id: { [Op.in]: id },
+                id: { [Op.in]: ids },
             },
+            transaction,
         });
 
         return data;

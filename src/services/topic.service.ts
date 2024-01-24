@@ -1,5 +1,6 @@
 import { TopicType } from '@/dto/type.dto';
 import { ITopicRepo } from '@/interface/topic-repo.interface';
+import db from '@/models';
 import { TopicAttributes } from '@/models/topic.model';
 
 interface CreateTopicReq
@@ -14,6 +15,8 @@ export class TopicService {
     }
 
     async createTopic(input: CreateTopicReq): Promise<TopicAttributes> {
+        const transaction = await db.sequelize.transaction();
+
         try {
             const { userId, title, type, ...rest } = input;
             // NOTE: content는 TypeAttributes
@@ -22,10 +25,15 @@ export class TopicService {
             if (!title) throw new Error('title is required');
             if (!type) throw new Error('type is required');
 
-            const topicData = await this._topicRepository.create({ userId, title, type, ...rest });
+            const result = await this._topicRepository.create({
+                transaction,
+                input: { userId, title, type, ...rest },
+            });
+            await transaction.commit();
 
-            return topicData;
+            return result;
         } catch (error) {
+            await transaction.rollback();
             throw error;
         }
     }
@@ -74,32 +82,57 @@ export class TopicService {
     }
 
     async updateTopicById(topicId: string, topic: Partial<TopicAttributes>): Promise<number> {
+        const transaction = await db.sequelize.transaction();
         try {
             if (!topicId) throw new Error('id is required');
             if (!topic) return 0;
 
-            return await this._topicRepository.updateTopicById(topicId, topic);
+            const result = await this._topicRepository.updateTopicById({
+                transaction,
+                id: topicId,
+                topic,
+            });
+            await transaction.commit();
+
+            return result;
         } catch (error) {
+            await transaction.rollback();
             throw error;
         }
     }
 
     async deleteTopicById(topicId: string): Promise<number> {
+        const transaction = await db.sequelize.transaction();
         try {
             if (!topicId) throw new Error('id is required');
 
-            return await this._topicRepository.deleteTopicById(topicId);
+            const result = await this._topicRepository.deleteTopicById({
+                transaction,
+                id: topicId,
+            });
+            await transaction.commit();
+
+            return result;
         } catch (error) {
+            await transaction.rollback();
             throw error;
         }
     }
 
     async deleteTopicsById(topicIds: string[]): Promise<number> {
+        const transaction = await db.sequelize.transaction();
         try {
             if (topicIds.length === 0) throw new Error('id is required');
 
-            return await this._topicRepository.deleteTopicsById(topicIds);
+            const result = await this._topicRepository.deleteTopicsById({
+                transaction,
+                ids: topicIds,
+            });
+            await transaction.commit();
+
+            return result;
         } catch (error) {
+            await transaction.rollback();
             throw error;
         }
     }

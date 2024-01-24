@@ -1,5 +1,7 @@
 import { ICandidateRepo } from '@/interface/candidate-repo.interface';
+import db from '@/models';
 import { CandidateItemAttributes } from '@/models/candidateItem.model';
+import { Transaction } from 'sequelize';
 
 export class CandidateService {
     private _candidateRepository: ICandidateRepo;
@@ -9,17 +11,23 @@ export class CandidateService {
     }
 
     async create(input: Omit<CandidateItemAttributes, 'id'>): Promise<CandidateItemAttributes> {
+        const transaction = await db.sequelize.transaction();
         try {
             const { topicId, order, detail } = input;
             if (!topicId) throw new Error('topicId is required');
             if (!order) throw new Error('order is required(order cannot be 0)');
             if (!detail) throw new Error('detail is required');
 
-            const data = await this._candidateRepository.create({ topicId, order, detail });
+            const result = await this._candidateRepository.create({
+                transaction,
+                input: { topicId, order, detail },
+            });
+            await transaction.commit();
             // const data = Promise.resolve({ id: 1, ...(input as any) });
 
-            return data;
+            return result;
         } catch (error) {
+            await transaction.rollback();
             throw error;
         }
     }
@@ -69,32 +77,57 @@ export class CandidateService {
         candidateId: string,
         input: Partial<Omit<CandidateItemAttributes, 'id'>>
     ): Promise<number> {
+        const transaction = await db.sequelize.transaction();
         try {
             if (!candidateId) throw new Error('id is required');
             if (!input) return 0;
 
-            return await this._candidateRepository.updateCandidateItem(candidateId, input);
+            const result = await this._candidateRepository.updateCandidateItem({
+                transaction,
+                candidateId,
+                input,
+            });
+            await transaction.commit();
+
+            return result;
         } catch (error) {
+            await transaction.rollback();
             throw error;
         }
     }
 
     async deleteCandidateById(candidateId: string): Promise<number> {
+        const transaction = await db.sequelize.transaction();
         try {
             if (!candidateId) throw new Error('id is required');
 
-            return await this._candidateRepository.deleteCandidateItem(candidateId);
+            const result = await this._candidateRepository.deleteCandidateItem({
+                transaction,
+                candidateId,
+            });
+            await transaction.commit();
+
+            return result;
         } catch (error) {
+            await transaction.rollback();
             throw error;
         }
     }
 
     async deleteCandidatesByIds(candidateIds: string[]): Promise<number> {
+        const transaction = await db.sequelize.transaction();
         try {
             if (candidateIds.length === 0) throw new Error('id is required');
 
-            return await this._candidateRepository.deleteCandidatesByIds(candidateIds);
+            const result = await this._candidateRepository.deleteCandidatesByIds({
+                transaction,
+                candidateIds,
+            });
+            await transaction.commit();
+
+            return result;
         } catch (error) {
+            await transaction.rollback();
             throw error;
         }
     }

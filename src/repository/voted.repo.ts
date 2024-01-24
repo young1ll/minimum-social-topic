@@ -1,19 +1,27 @@
 import { IVotedItemRepo } from '@/interface/voted-repo.interface';
 import db from '@/models';
 import { VotedItemAttributes } from '@/models/votedItem.model';
-import { Op, Sequelize } from 'sequelize';
+import { Op, Sequelize, Transaction } from 'sequelize';
 
 const VotedItem = db.VotedItem;
 
 export class VotedItemRepository implements IVotedItemRepo {
-    async create(
-        ids: Pick<VotedItemAttributes, 'topicId' | 'userId' | 'candidateItemId'>,
-        input: Partial<Omit<VotedItemAttributes, 'id' | 'topicId' | 'userId' | 'candidateItemId'>>
-    ): Promise<VotedItemAttributes> {
-        const data = await VotedItem.create({
-            ...ids,
-            ...input,
-        });
+    async create({
+        transaction,
+        ids,
+        input,
+    }: {
+        transaction: Transaction;
+        ids: Pick<VotedItemAttributes, 'topicId' | 'userId' | 'candidateItemId'>;
+        input: Partial<Omit<VotedItemAttributes, 'id' | 'topicId' | 'userId' | 'candidateItemId'>>;
+    }): Promise<VotedItemAttributes> {
+        const data = await VotedItem.create(
+            {
+                ...ids,
+                ...input,
+            },
+            { transaction }
+        );
 
         return data.toJSON();
     }
@@ -68,33 +76,53 @@ export class VotedItemRepository implements IVotedItemRepo {
         return data?.map((d) => d.toJSON()) || null;
     }
 
-    async updatedVotedItem(
-        votedId: string,
-        input: Partial<Omit<VotedItemAttributes, 'id'>>
-    ): Promise<number> {
+    async updatedVotedItem({
+        transaction,
+        votedId,
+        input,
+    }: {
+        transaction: Transaction;
+        votedId: string;
+        input: Partial<Omit<VotedItemAttributes, 'id'>>;
+    }): Promise<number> {
         const data = await VotedItem.update(input, {
             where: {
                 id: votedId,
             },
+            transaction,
         });
 
         return data[0];
     }
-    async deleteVotedItem(votedId: string): Promise<number> {
+    async deleteVotedItem({
+        transaction,
+        votedId,
+    }: {
+        transaction: Transaction;
+        votedId: string;
+    }): Promise<number> {
         const data = await VotedItem.destroy({
             where: {
                 id: votedId,
             },
+            transaction,
         });
 
         return data;
     }
 
-    async deleteVotedItems(votedIds: string[]): Promise<number> {
+    async deleteVotedItems({
+        transaction,
+        votedIds,
+    }: {
+        transaction: Transaction;
+        votedIds: string[];
+    }): Promise<number> {
         const data = await VotedItem.destroy({
             where: {
                 id: { [Op.in]: votedIds },
             },
+            transaction,
         });
 
         return data;
