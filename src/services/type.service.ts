@@ -25,15 +25,15 @@ export class TypeService {
         try {
             if (!type) throw new Error('type is required');
 
-            const { topicId, content, ...rest } = input;
+            const { topicId, description, ...rest } = input;
             if (!topicId) throw new Error('topicId is required');
 
             switch (type) {
                 case 'poll':
-                    return await this._pollRepository.create({ topicId, content });
+                    return await this._pollRepository.create({ topicId, description });
 
                 case 'event':
-                    return await this._eventRepository.create({ topicId, content, ...rest });
+                    return await this._eventRepository.create({ topicId, description, ...rest });
             }
         } catch (error) {
             throw error;
@@ -87,14 +87,17 @@ export class TypeService {
         try {
             if (!type) throw new Error('type is required');
 
-            const { topicId, content, ...rest } = input;
+            const { topicId, description, ...rest } = input;
             if (!topicId) throw new Error('topicId is required');
 
             switch (type) {
                 case 'poll':
-                    return await this._pollRepository.updatePoll(topicId, { content });
+                    return await this._pollRepository.updatePoll(topicId, { description });
                 case 'event':
-                    return await this._eventRepository.updateEvent(topicId, { content, ...rest });
+                    return await this._eventRepository.updateEvent(topicId, {
+                        description,
+                        ...rest,
+                    });
             }
         } catch (error) {
             throw error;

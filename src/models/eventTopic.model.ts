@@ -3,8 +3,10 @@ import { Topic } from './topic.model';
 // import sequelize from 'sequelize';
 
 export interface EventTopicAttributes {
+    id: number;
+
     topicId: string;
-    content: string;
+    description: string;
     eventDate?: string;
     eventLocation?: string;
 
@@ -23,7 +25,7 @@ export const EventTopic = ({ sequelize }: { sequelize: Sequelize }) => {
             //         key: 'id',
             //     },
             // },
-            content: {
+            description: {
                 type: DataTypes.STRING,
                 allowNull: false,
             },

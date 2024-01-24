@@ -6,6 +6,7 @@ import {
     IsEmpty,
     IsEnum,
     IsNotEmpty,
+    IsNumber,
     IsOptional,
     IsString,
     IsUUID,
@@ -33,6 +34,10 @@ export class TopicCreateReq {
     @IsBoolean()
     @IsOptional()
     isSecretVote?: boolean;
+
+    @IsNumber()
+    @IsOptional()
+    isMultiChoice?: number;
 
     @IsString()
     @IsOptional()
@@ -88,6 +93,10 @@ export class UpdateTopicReq {
     @IsBoolean()
     @IsOptional()
     isSecretVote?: boolean;
+
+    @IsNumber()
+    @IsOptional()
+    isMultiChoice?: number;
 
     @IsString()
     @IsOptional()

@@ -2,8 +2,10 @@ import { DataTypes, Sequelize } from 'sequelize';
 import { Topic } from './topic.model';
 
 export interface PollTopicAttributes {
+    id: number;
+
     topicId: string;
-    content: string;
+    description: string;
 
     createdAt?: Date;
     updatedAt?: Date;
@@ -20,7 +22,7 @@ export const PollTopic = ({ sequelize }: { sequelize: Sequelize }) => {
             //         key: 'id',
             //     },
             // },
-            content: {
+            description: {
                 type: DataTypes.STRING,
                 allowNull: false,
             },

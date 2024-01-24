@@ -25,5 +25,5 @@ export interface ITopicRepo {
     // Topic id로 특정 Topic data 삭제
     deleteTopicById(id: string): Promise<number>;
 
-    deleteTopicsById(id: string[]): Promise<number>;
+    deleteTopicsById(id: string | string[]): Promise<number>;
 }

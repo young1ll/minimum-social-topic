@@ -1,0 +1,27 @@
+# TODO: SWAGGER DOCUMENTATION 작성...
+definitions:
+    UpdateTopicBodyParams:
+        type: object
+        description: GET TOPIC RESPONSE
+        properties:
+            data:
+                type: object
+                properties:
+                    id:
+                        type: string
+                        description: Topic ID
+                    userId:
+                        type: string
+                        description: Topic을 생성한 사용자의 ID
+                    type:
+                        type: string
+                        description: Topic 형식
+                    title:
+                        type: string
+                        description: Topic 제목
+                    status:
+                        type: string
+                        description: Topic 상태 정보
+                    isSecretVote:
+                        type: boolean
+                        description: Topic 비밀 투표 여부

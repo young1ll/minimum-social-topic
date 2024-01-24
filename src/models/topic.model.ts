@@ -7,13 +7,14 @@ export interface TopicAttributes {
     title: string;
     type: string; // enum
     status?: string; // enum
-    isPlurality?: boolean; // 복수 투표
+    isMultiChoice?: number; // 복수 투표 허용 여부
     isSecretVote?: boolean; // 비밀 투표 여부
     castingVote?: string; // 최종 투표자 id
     resultOpen?: boolean;
     view?: number;
     startDate?: Date;
     endDate?: Date;
+    candidateItemCount?: number;
 
     createdAt?: Date;
     updatedAt?: Date;
@@ -53,9 +54,9 @@ export const Topic = ({ sequelize }: { sequelize: Sequelize }) => {
                 defaultValue: false,
                 allowNull: false,
             },
-            isPlurality: {
-                type: DataTypes.BOOLEAN,
-                defaultValue: false,
+            isMultiChoice: {
+                type: DataTypes.NUMBER,
+                defaultValue: 0,
                 allowNull: false,
             },
             castingVote: {

@@ -12,7 +12,8 @@ export interface VotedItemAttributes {
     topicTitle: string;
     topicType: string; // enum
     topicStatus: string; // enum
-    topicIsPlurality: boolean;
+    topicDescription: string;
+    topicIsMultiChoice: number;
     topicIsSecretVote: boolean;
     topicCastingVote?: string;
     topicResultOpen: boolean;
@@ -90,8 +91,8 @@ export const VotedItem = ({ sequelize }: { sequelize: Sequelize }) => {
                 //     key: 'isSecretVote',
                 // },
             },
-            topicIsPlurality: {
-                type: DataTypes.BOOLEAN,
+            topicIsMultiChoice: {
+                type: DataTypes.NUMBER,
                 // references: {
                 //     model: Topic({ sequelize }),
                 //     key: 'isPlurality',
@@ -131,6 +132,9 @@ export const VotedItem = ({ sequelize }: { sequelize: Sequelize }) => {
                 //     model: Topic({ sequelize }),
                 //     key: 'createdAt',
                 // },
+            },
+            topicDescription: {
+                type: DataTypes.STRING,
             },
 
             candidateDetail: {

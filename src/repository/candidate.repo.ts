@@ -6,11 +6,13 @@ import { Op } from 'sequelize';
 const CandidateItem = db.CandidateItem;
 
 export class CandidateRepository implements ICandidateRepo {
-    async create(input: CandidateItemAttributes): Promise<CandidateItemAttributes> {
+    async create(input: Omit<CandidateItemAttributes, 'id'>): Promise<CandidateItemAttributes> {
+        // const data = Promise.resolve(input as any);
         const data = await CandidateItem.create({
-            input,
+            ...input,
         });
 
+        // return data;
         return data.toJSON();
     }
     async getCandidateItemById(candidateId: string): Promise<CandidateItemAttributes | null> {
@@ -22,14 +24,14 @@ export class CandidateRepository implements ICandidateRepo {
 
         return data?.toJSON() || null;
     }
-    async getCandidateItemByTopicId(topicId: string): Promise<CandidateItemAttributes | null> {
-        const data = await CandidateItem.findOne({
+    async getCandidateItemByTopicId(topicId: string): Promise<CandidateItemAttributes[] | null> {
+        const data = await CandidateItem.findAll({
             where: {
                 topicId,
             },
         });
 
-        return data?.toJSON() || null;
+        return data?.map((candidate) => candidate.toJSON()) || null;
     }
 
     async getAllCandidateItems(): Promise<CandidateItemAttributes[] | null> {
@@ -50,7 +52,7 @@ export class CandidateRepository implements ICandidateRepo {
     }
 
     async updateCandidateItem(
-        candidateId: Pick<CandidateItemAttributes, 'id'>,
+        candidateId: string,
         input: Partial<Omit<CandidateItemAttributes, 'id'>>
     ): Promise<number> {
         const data = await CandidateItem.update(input, {
@@ -61,7 +63,7 @@ export class CandidateRepository implements ICandidateRepo {
 
         return data[0];
     }
-    async deleteCandidateItem(candidateId: CandidateItemAttributes): Promise<number> {
+    async deleteCandidateItem(candidateId: string): Promise<number> {
         const data = await CandidateItem.destroy({
             where: {
                 id: candidateId,
@@ -71,9 +73,7 @@ export class CandidateRepository implements ICandidateRepo {
         return data;
     }
 
-    async deleteCandidatesByIds(
-        candidateIds: Pick<CandidateItemAttributes, 'id'>[]
-    ): Promise<number> {
+    async deleteCandidatesByIds(candidateIds: string[]): Promise<number> {
         const data = await CandidateItem.destroy({
             where: {
                 id: { [Op.in]: candidateIds },

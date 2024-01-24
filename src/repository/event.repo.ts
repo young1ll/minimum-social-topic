@@ -9,8 +9,8 @@ export class EventRepository implements IEventRepo {
     async create(
         input: Pick<EventTopicAttributes, 'topicId'> & Partial<EventTopicAttributes>
     ): Promise<EventTopicAttributes> {
-        const { topicId, content, eventDate, eventLocation } = input;
-        const data = await EventTopic.create({ topicId, content, eventDate, eventLocation });
+        const { topicId, description, eventDate, eventLocation } = input;
+        const data = await EventTopic.create({ topicId, description, eventDate, eventLocation });
 
         return data.toJSON();
     }

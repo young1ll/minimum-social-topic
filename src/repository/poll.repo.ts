@@ -6,9 +6,11 @@ import { Sequelize, Op } from 'sequelize';
 const PollTopic = db.PollTopic;
 
 export class PollRepository implements IPollRepo {
-    async create(input: PollTopicAttributes): Promise<PollTopicAttributes> {
-        const { topicId, content } = input;
-        const data = await PollTopic.create({ topicId, content });
+    async create(
+        input: Pick<PollTopicAttributes, 'topicId'> & Partial<PollTopicAttributes>
+    ): Promise<PollTopicAttributes> {
+        const { topicId, description } = input;
+        const data = await PollTopic.create({ topicId, description });
 
         return data.toJSON();
     }
@@ -38,9 +40,9 @@ export class PollRepository implements IPollRepo {
         return data?.map((poll) => poll.toJSON()) || null;
     }
     async updatePoll(input: PollTopicAttributes): Promise<number> {
-        const { topicId, content } = input;
+        const { topicId, description } = input;
         const data = await PollTopic.update(
-            { content },
+            { description },
             {
                 where: {
                     topicId,

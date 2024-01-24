@@ -1,15 +1,26 @@
+import { TopicType } from '@/dto/type.dto';
 import { VotedCreateReq } from '@/dto/voted.dto';
-import { CandidateRepository, TopicRepository, VotedItemRepository } from '@/repository';
-import { CandidateService, TopicService, VotedItemService } from '@/services';
+import {
+    CandidateRepository,
+    EventRepository,
+    PollRepository,
+    TopicRepository,
+    VotedItemRepository,
+} from '@/repository';
+import { CandidateService, TopicService, TypeService, VotedItemService } from '@/services';
 import { RequestValidator } from '@/utils/request-validator';
 import e, { Request, Response } from 'express';
 
 const topicRepo = new TopicRepository();
+const eventRepo = new EventRepository();
+const pollRepo = new PollRepository();
+
 const candidateRepo = new CandidateRepository();
 const votedItemRepo = new VotedItemRepository();
 
 const router = e.Router();
 const topicService = new TopicService({ topicRepo });
+const typeService = new TypeService({ eventRepo, pollRepo });
 const candidateService = new CandidateService({ candidateRepo });
 const votedService = new VotedItemService({ votedItemRepo });
 
@@ -35,6 +46,11 @@ router.post('/voted', async (req: Request, res: Response) => {
             });
         }
 
+        const typeData = await typeService.getTypeByTopicId({
+            topicId: input.topicId,
+            type: topicData.type as TopicType,
+        });
+
         const {
             id: candidateDataId,
             topicId: candidTopicId,
@@ -56,8 +72,9 @@ router.post('/voted', async (req: Request, res: Response) => {
             userId: input.userId,
         };
         const resultInput = {
-            ...candidateRest,
             ...topicRest,
+            topicDescription: typeData?.description,
+            ...candidateRest,
         };
 
         const result = await votedService.createVotedItem(resultIds, resultInput);

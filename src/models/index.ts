@@ -30,59 +30,46 @@ const db = {
  * 필요한 경우 Model 파일 내 컬럼에서 직접 설정할 수 있다.
  *  */
 const legacyUser = User({ sequelize });
-legacyUser.hasMany(db.Topic, { foreignKey: 'userId' });
+legacyUser.hasMany(db.Topic, { foreignKey: 'userId', onDelete: 'cascade', hooks: true });
 
-db.Topic.belongsTo(legacyUser, { foreignKey: 'userId' });
+db.Topic.belongsTo(legacyUser, { foreignKey: 'userId', onDelete: 'SET NULL' });
 
-db.Topic.hasOne(db.EventTopic, { foreignKey: 'topicId' });
-db.Topic.hasOne(db.PollTopic, { foreignKey: 'topicId' });
-db.Topic.hasMany(db.CandidateItem, { foreignKey: 'topicId' });
+db.Topic.hasOne(db.EventTopic, { foreignKey: 'topicId', onDelete: 'cascade', hooks: true });
+db.Topic.hasOne(db.PollTopic, { foreignKey: 'topicId', onDelete: 'cascade', hooks: true });
+db.Topic.hasMany(db.CandidateItem, { foreignKey: 'topicId', onDelete: 'cascade', hooks: true });
 
-db.PollTopic.belongsTo(db.Topic, { foreignKey: 'topicId', onDelete: 'cascade', hooks: true });
-db.EventTopic.belongsTo(db.Topic, { foreignKey: 'topicId', onDelete: 'cascade', hooks: true });
+db.PollTopic.belongsTo(db.Topic, { foreignKey: 'topicId' });
+db.EventTopic.belongsTo(db.Topic, { foreignKey: 'topicId' });
 
-db.CandidateItem.belongsTo(db.Topic, { foreignKey: 'topicId', onDelete: 'cascade', hooks: true });
+db.CandidateItem.belongsTo(db.Topic, { foreignKey: 'topicId' });
 db.CandidateItem.afterCreate(async (item, option) => {
     await db.Topic.increment(
-        { candidateCount: 1 },
+        { candidateItemCount: 1 },
         { where: { id: item.getDataValue('topicId') } }
     );
 });
-db.CandidateItem.afterDestroy(async (item, option) => {
+db.CandidateItem.beforeDestroy(async (item, option) => {
     await db.Topic.decrement(
-        { candidateCount: 1 },
+        { candidateItemCount: 1 },
         { where: { id: item.getDataValue('topicId') } }
     );
 });
 
-legacyUser.hasMany(db.VotedItem, { foreignKey: 'userId' });
+legacyUser.hasMany(db.VotedItem, { foreignKey: 'userId', onDelete: 'cascade', hooks: true });
 db.VotedItem.belongsTo(legacyUser, { foreignKey: 'userId' });
 
-db.Topic.hasMany(db.VotedItem, { foreignKey: 'topicId' });
+db.Topic.hasMany(db.VotedItem, { foreignKey: 'topicId', onDelete: 'NO ACTION', hooks: true });
 db.VotedItem.belongsTo(db.Topic, {
     foreignKey: 'topicId',
-    onDelete: 'NO ACTION',
-    hooks: true,
 });
 
-db.CandidateItem.hasMany(db.VotedItem, { foreignKey: 'candidateItemId' });
-db.VotedItem.belongsTo(db.CandidateItem, {
+db.CandidateItem.hasMany(db.VotedItem, {
     foreignKey: 'candidateItemId',
     onDelete: 'NO ACTION',
     hooks: true,
 });
-
-// db.VotedItem.belongsTo(db.Topic, {
-//     foreignKey: 'topicId',
-//     constraints: false,
-//     onDelete: 'NO ACTION',
-//     onUpdate: 'cascade',
-// });
-// db.VotedItem.belongsTo(db.CandidateItem, {
-//     foreignKey: 'candidateItemId',
-//     constraints: false,
-//     onDelete: 'NO ACTION',
-//     onUpdate: 'cascade',
-// });
+db.VotedItem.belongsTo(db.CandidateItem, {
+    foreignKey: 'candidateItemId',
+});
 
 export default db;

@@ -2,7 +2,9 @@ import { PollTopicAttributes } from '@/models/pollTopic.model';
 
 export interface IPollRepo {
     // Poll 생성
-    create(input: PollTopicAttributes): Promise<PollTopicAttributes>;
+    create(
+        input: Pick<PollTopicAttributes, 'topicId'> & Partial<PollTopicAttributes>
+    ): Promise<PollTopicAttributes>;
 
     // Poll id로 특정 Poll data 가져오기
     getPollBytopicId(

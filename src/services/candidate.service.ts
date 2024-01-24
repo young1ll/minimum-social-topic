@@ -8,14 +8,15 @@ export class CandidateService {
         this._candidateRepository = candidateRepo;
     }
 
-    async create(input: CandidateItemAttributes): Promise<CandidateItemAttributes> {
+    async create(input: Omit<CandidateItemAttributes, 'id'>): Promise<CandidateItemAttributes> {
         try {
-            const { id, topicId, order, detail } = input;
-            if (!id) throw new Error('id is required');
+            const { topicId, order, detail } = input;
             if (!topicId) throw new Error('topicId is required');
-            if (!order) throw new Error('order is required');
+            if (!order) throw new Error('order is required(order cannot be 0)');
+            if (!detail) throw new Error('detail is required');
 
-            const data = await this._candidateRepository.create({ id, topicId, order, detail });
+            const data = await this._candidateRepository.create({ topicId, order, detail });
+            // const data = Promise.resolve({ id: 1, ...(input as any) });
 
             return data;
         } catch (error) {
@@ -33,7 +34,7 @@ export class CandidateService {
         }
     }
 
-    async getAllCandidatesByTopicId(topicId: string): Promise<CandidateItemAttributes | null> {
+    async getAllCandidatesByTopicId(topicId: string): Promise<CandidateItemAttributes[] | null> {
         try {
             if (!topicId) throw new Error('topicId is required');
 
@@ -72,7 +73,7 @@ export class CandidateService {
             if (!candidateId) throw new Error('id is required');
             if (!input) return 0;
 
-            return await this._candidateRepository.updateCandidateItem({ id: candidateId }, input);
+            return await this._candidateRepository.updateCandidateItem(candidateId, input);
         } catch (error) {
             throw error;
         }
@@ -82,7 +83,7 @@ export class CandidateService {
         try {
             if (!candidateId) throw new Error('id is required');
 
-            return await this._candidateRepository.deleteCandidateItem({ id: candidateId });
+            return await this._candidateRepository.deleteCandidateItem(candidateId);
         } catch (error) {
             throw error;
         }

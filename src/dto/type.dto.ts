@@ -13,7 +13,7 @@ export class TypeCreateReq {
 
     @IsString()
     @IsOptional()
-    content?: string;
+    description?: string;
 
     @IsDate()
     @IsOptional()

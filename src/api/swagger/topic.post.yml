@@ -1,0 +1,140 @@
+definitions:
+    CreateTopicBodyParams:
+        type: object
+        required:
+            - userId
+            - type
+            - title
+        properties:
+            userId:
+                type: string
+                description: Topic을 생성하는 사용자의 userId.
+                example: 'de73e957-5c64-4a85-ae7e-54ca753fb839'
+            type:
+                type: string
+                example: 'poll'
+                enum: ['poll', 'event']
+                description: Topic 타입 설정 ("poll" or "event").
+            title:
+                type: string
+                description: Topic 제목.
+                example: '2023 새로운 투표'
+            status:
+                type: string
+                description: STopic 상태 정보.
+                enum: ['pending', 'open', 'closed']
+                example: 'open'
+            isSecretVote:
+                type: boolean
+                description: 비밀 투표 여부.
+            castingVote:
+                type: string
+                description: 최종 결정자 userId.
+                example: '7d28305d-fae1-4177-a727-85b62f04fa4a'
+            resultOpen:
+                type: boolean
+                description: 투표 결과 공개 여부.
+            startDate:
+                type: string
+                format: date
+                description: 투표 시작일.
+            endDate:
+                type: string
+                format: date
+                description: 투표 마감일.
+            description:
+                type: string
+                description: 투표 주제 내용 및 설명 (type; poll or event).
+            eventDate:
+                type: string
+                format: date
+                description: 이벤트 날짜 (type; event).
+            eventLocation:
+                type: string
+                example: 'Seoul'
+                description: 이벤트 위치 정보 (type; event).
+    CreatePollSuccessResponse:
+        type: object
+        description: CREATE POLL SUCCESS RESPONSE
+        properties:
+            data:
+                type: object
+                properties:
+                    userId:
+                        type: string
+                        example: 'de73e957-5c64-4a85-ae7e-54ca753fb839'
+                    type:
+                        type: string
+                        example: 'poll'
+                    title:
+                        type: string
+                        example: '2023 새로운 투표'
+                    status:
+                        type: string
+                        example: 'open'
+                    isSecretVote:
+                        type: boolean
+                        example: true
+                    castingVote:
+                        type: string
+                        example: '7d28305d-fae1-4177-a727-85b62f04fa4a'
+                    resultOpen:
+                        type: boolean
+                        example: true
+                    startDate:
+                        type: string
+                        format: date
+                        example: '2023-01-01'
+                    endDate:
+                        type: string
+                        format: date
+                        example: '2023-01-05'
+                    description:
+                        type: string
+                        example: '2023 새로운 투표가 시작됩니다. 많은 참여 바랍니다.'
+    CreateEventSuccessResponse:
+        type: object
+        description: CREATE EVENT SUCCESS RESPONSE
+        properties:
+            data:
+                type: object
+                properties:
+                    userId:
+                        type: string
+                        example: 'de73e957-5c64-4a85-ae7e-54ca753fb839'
+                    type:
+                        type: string
+                        example: 'event'
+                    title:
+                        type: string
+                        example: '2023 새로운 이벤트 찬성 또는 반대'
+                    status:
+                        type: string
+                        example: 'open'
+                    isSecretVote:
+                        type: boolean
+                        example: true
+                    castingVote:
+                        type: string
+                        example: '7d28305d-fae1-4177-a727-85b62f04fa4a'
+                    resultOpen:
+                        type: boolean
+                        example: true
+                    startDate:
+                        type: string
+                        format: date
+                        example: '2023-01-01'
+                    endDate:
+                        type: string
+                        format: date
+                        example: '2023-01-05'
+                    description:
+                        type: string
+                        example: '2023 새로운 이벤트가 열립니다. 어떤가요?'
+                    eventDate:
+                        type: string
+                        format: date
+                        example: '2023-01-21'
+                    eventLocation:
+                        type: string
+                        example: 'Seoul'
