@@ -4,7 +4,7 @@ import { redisConfig } from '@/config';
 export const redisConnection = new Redis({
     host: redisConfig.HOST,
     port: redisConfig.PORT,
-    username: redisConfig.USER,
+    // username: redisConfig.USER,
     password: redisConfig.PASSWORD,
     reconnectOnError: (err: Error) => {
         const targetError = 'READONLY';
