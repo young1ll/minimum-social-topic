@@ -101,6 +101,24 @@ export class TopicService {
         }
     }
 
+    async updateViews(topicId: string): Promise<number> {
+        const transaction = await db.sequelize.transaction();
+        try {
+            if (!topicId) throw new Error('id is required');
+
+            const result = await this._topicRepository.updateViewsByTopicId({
+                transaction,
+                id: topicId,
+            });
+            await transaction.commit();
+
+            return result;
+        } catch (error) {
+            await transaction.rollback();
+            throw error;
+        }
+    }
+
     async deleteTopicById(topicId: string): Promise<number> {
         const transaction = await db.sequelize.transaction();
         try {

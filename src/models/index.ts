@@ -1,5 +1,5 @@
 import { Dialect, Sequelize } from 'sequelize';
-import dbConfig from '../config/db.config';
+import { dbConfig } from '../config';
 import User from './lagacy-tables/user.model';
 import { Topic } from './topic.model';
 import { EventTopic } from './eventTopic.model';

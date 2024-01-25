@@ -35,6 +35,14 @@ export interface ITopicRepo {
         topic: Partial<TopicAttributes>;
     }): Promise<number>;
 
+    updateViewsByTopicId({
+        transaction,
+        id,
+    }: {
+        transaction: Transaction;
+        id: string;
+    }): Promise<number>;
+
     // Topic id로 특정 Topic data 삭제
     deleteTopicById({ transaction, id }: { transaction: Transaction; id: string }): Promise<number>;
 

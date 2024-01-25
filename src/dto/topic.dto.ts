@@ -115,6 +115,16 @@ export class UpdateTopicReq {
     endDate?: Date;
 }
 
+export class UpdateTopicViewReq {
+    @IsUUID()
+    @IsNotEmpty()
+    topicId: string;
+
+    @IsString()
+    @IsOptional()
+    userId: string;
+}
+
 export class DeleteTopicReq {
     @IsString()
     @IsNotEmpty()

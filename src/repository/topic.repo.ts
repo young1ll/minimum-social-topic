@@ -86,6 +86,29 @@ export class TopicRepository implements ITopicRepo {
 
         return Promise.resolve(data[0]);
     }
+
+    async updateViewsByTopicId({
+        transaction,
+        id,
+    }: {
+        transaction: Transaction;
+        id: string;
+    }): Promise<number> {
+        const [affectedRows] = await Topic.update(
+            {
+                view: Sequelize.literal('view + 1'),
+            },
+            {
+                where: {
+                    id,
+                },
+                transaction,
+            }
+        );
+
+        return affectedRows;
+    }
+
     async deleteTopicById({
         transaction,
         id,

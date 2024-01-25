@@ -5,6 +5,8 @@ import db from './models';
 
 import swaggerUi from 'swagger-ui-express';
 import { specs } from './swagger.options';
+import { startScheduler } from './utils/scheduler';
+import { updateViewInDatabase } from './utils/redis/save-database';
 
 const { sequelize } = db;
 
@@ -16,6 +18,12 @@ app.use('/', topicRouter);
 app.use('/', candidateRouter);
 
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(specs));
+
+startScheduler({
+    cronExpression: '0 * * * *', // every hour
+    scheduledFn: updateViewInDatabase,
+    options: { scheduled: true, timezone: 'Asia/Seoul' },
+});
 
 sequelize
     .sync({

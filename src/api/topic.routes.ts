@@ -7,6 +7,7 @@ import {
     GetTopicReq,
     TopicCreateReq,
     UpdateTopicReq,
+    UpdateTopicViewReq,
 } from '@/dto/topic.dto';
 import { TopicType, TypeCreateReq, isTopicType } from '@/dto/type.dto';
 
@@ -19,6 +20,7 @@ import {
     PollRepository,
     TopicRepository,
 } from '@/repository';
+import { ViewRequest, getViewFromRedis, updateAndGetViewOnRedis } from '@/middleware/update-views';
 
 const topicRepo = new TopicRepository();
 const pollRepo = new PollRepository();
@@ -189,7 +191,7 @@ router.post('/topic', async (req: Request, res: Response) => {
  *               type: string
  *               description: Error message.
  */
-router.get('/topic', async (req: Request, res: Response) => {
+router.get('/topic', updateAndGetViewOnRedis, async (req: ViewRequest, res: Response) => {
     try {
         const { errors, input } = await RequestValidator(GetTopicReq, {
             topicId: req.query.topicId,
@@ -202,11 +204,13 @@ router.get('/topic', async (req: Request, res: Response) => {
         const typeData = await typeService.getTypeByTopicId({ topicId: topicId as string, type });
         const candidateData = await candidateService.getAllCandidatesByTopicId(topicId as string);
 
+        const { view, ...topicDataWithoutViews } = topicData || {};
         const { id, topicId: typeTopicId, ...typeDataWithoutId } = typeData || {};
         // type의 id와 topicId 제외
 
         const result = {
-            ...topicData,
+            ...topicDataWithoutViews,
+            view: req.view || view,
             ...typeDataWithoutId,
             candidates: candidateData,
         };
@@ -420,6 +424,19 @@ router.put('/topic', async (req: Request, res: Response) => {
         const err = error as Error;
         return res.status(500).json({ error: err.message });
     }
+});
+
+router.patch('/topic-views', async (req: Request, res: Response) => {
+    try {
+        const { errors, input } = await RequestValidator(UpdateTopicViewReq, req.body);
+        if (errors) return res.status(400).json({ errors });
+
+        const { topicId } = input;
+        const data = await topicService.updateViews(topicId);
+
+        return res.status(200).json({ message: 'Data Updated Successfully', data });
+    } catch (error) {}
+    return res.status(400).json({ error: 'Not Implemented' });
 });
 
 /**
