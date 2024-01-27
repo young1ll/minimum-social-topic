@@ -48,23 +48,29 @@ export class TopicService {
         }
     }
 
-    // TODO: topicId 배열로 topic Data 반환하기
-    // eg: 여러 데이터 삭제 시 해당 데이터 존재 여부 확인
-    async getAllTopicsByTopicIds(topicIds: string[]) {}
-
-    async getAllTopicsByUserId(userId: string): Promise<TopicAttributes[] | null> {
+    async getAllTopics({
+        order,
+        userId,
+        type,
+    }: {
+        order?: 'asc' | 'desc';
+        userId?: string;
+        type?: TopicType;
+    }): Promise<TopicAttributes[] | []> {
         try {
-            if (!userId) throw new Error('userId is required');
-
-            return await this._topicRepository.getAllTopicsByUserId(userId);
+            return await this._topicRepository.getAll(order, userId, type);
         } catch (error) {
             throw error;
         }
     }
 
-    async searchTopic(query: string): Promise<TopicAttributes[] | null> {
+    // TODO: topicId 배열로 topic Data 반환하기
+    // eg: 여러 데이터 삭제 시 해당 데이터 존재 여부 확인
+    async getAllTopicsByTopicIds(topicIds: string[]) {}
+
+    async searchTopic(query: string): Promise<TopicAttributes[] | []> {
         try {
-            if (!query) return null;
+            if (!query) return [];
             return await this._topicRepository.searchTopic(query);
         } catch (error) {
             throw error;

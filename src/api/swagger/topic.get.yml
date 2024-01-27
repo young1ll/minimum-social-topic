@@ -186,6 +186,9 @@ definitions:
                             type: string
                             enum: ['pending', 'open', 'close']
                             description: Topic 상태 정보
+                        description:
+                            type: string
+                            description: Topic 주제 내용 및 설명
                         isMultiChoice:
                             type: boolean
                             description: Topic 중복 투표 허용 여부
@@ -211,3 +214,22 @@ definitions:
                         updatedAt:
                             type: string
                             format: date
+                        deletedAt:
+                            type: string
+                            format: date
+            pagination:
+                type: object
+                description: TOPIC PAGINATION
+                properties:
+                    currentPage:
+                        type: number
+                        description: 현재 페이지
+                    totalPages:
+                        type: number
+                        description: 전체 페이지
+                    hasPreviousPage:
+                        type: boolean
+                        description: 이전 페이지 존재 여부
+                    hasNextPage:
+                        type: boolean
+                        description: 다음 페이지 존재 여부

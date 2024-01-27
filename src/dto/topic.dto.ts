@@ -64,8 +64,16 @@ export class GetTopicReq {
 
 export class GetAllTopicReq {
     @IsString()
-    @IsNotEmpty()
+    @IsOptional()
     userId: string;
+
+    @IsEnum(['poll', 'event'])
+    @IsOptional()
+    type: string;
+
+    @IsEnum(['asc', 'desc'])
+    @IsOptional()
+    order: 'asc' | 'desc';
 }
 
 export class UpdateTopicReq {

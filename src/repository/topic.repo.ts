@@ -40,6 +40,7 @@ export class TopicRepository implements ITopicRepo {
 
         return data;
     }
+
     async getTopicByTopicId(topicId: string): Promise<TopicAttributes | null> {
         const data = await Topic.findOne({
             where: {
@@ -49,23 +50,31 @@ export class TopicRepository implements ITopicRepo {
 
         return data?.toJSON() || null;
     }
-    async getAllTopicsByUserId(userId: string): Promise<TopicAttributes[] | null> {
+
+    async getAll(
+        order?: 'asc' | 'desc', //order
+        userId?: string, // filter
+        type?: TopicType // filter
+    ): Promise<TopicAttributes[] | []> {
         const data = await Topic.findAll({
+            order: [['createdAt', order || 'desc']],
             where: {
-                userId,
+                ...(type && { type }),
+                ...(userId && { userId }),
             },
         });
 
-        return data?.map((topic) => topic.toJSON()) || null;
+        return data?.map((topic) => topic.toJSON());
     }
-    async searchTopic(query: string): Promise<TopicAttributes[] | null> {
+
+    async searchTopic(query: string): Promise<TopicAttributes[] | []> {
         const data = await Topic.findAll({
             where: Sequelize.literal(`(
                 title COLLATE utf8mb4_general_ci LIKE '%${query}%'
             )`),
         });
 
-        return data?.map((topic) => topic.toJSON()) || null;
+        return data?.map((topic) => topic.toJSON());
         // throw new Error('Method not implemented.');
     }
     async updateTopicById({

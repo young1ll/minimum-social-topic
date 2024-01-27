@@ -17,12 +17,17 @@ export interface ITopicRepo {
     // 특정 Topic의 상세 데이터
     getTopicByTopicId(topicId: string): Promise<TopicAttributes | null>;
 
-    // 사용자의 모든 Topic list
-    getAllTopicsByUserId(userId: string): Promise<TopicAttributes[] | null>;
-    // getTopicByUserIdAndId(userId: string, topicId: string): Promise<TopicAttributes>
+    // 모든 Topic 목록
+    // filter: userId, type
+    // order: createdAt, [asc, desc]
+    getAll(
+        order?: 'asc' | 'desc',
+        userId?: string,
+        type?: TopicType
+    ): Promise<TopicAttributes[] | []>;
 
     // Topic 검색
-    searchTopic(query: string): Promise<TopicAttributes[] | null>;
+    searchTopic(query: string): Promise<TopicAttributes[] | []>;
 
     // Topic id로 특정 Topic data 수정
     updateTopicById({

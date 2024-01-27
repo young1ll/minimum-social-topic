@@ -21,6 +21,7 @@ import {
     TopicRepository,
 } from '@/repository';
 import { ViewRequest, getViewFromRedis, updateAndGetViewOnRedis } from '@/middleware/update-views';
+import { TopicAttributes } from '@/models/topic.model';
 
 const topicRepo = new TopicRepository();
 const pollRepo = new PollRepository();
@@ -231,28 +232,39 @@ router.get('/topic', updateAndGetViewOnRedis, async (req: ViewRequest, res: Resp
  *   get:
  *     tags: [Topic]
  *     summary: Topic 목록 가져오기
- *     description: Topic 요약 목록 가져오기. query로 title 검색이 가능합니다.
+ *     description: Topic 요약 목록 가져오기. query 검색어로 title 검색이 가능합니다. 단, 현재 검색어 쿼리가 설정될 때, 정렬이 불가능 합니다(추후 개선 예정).
  *     parameters:
  *       - in: query
- *         name: userId
- *         description: ID of the user to filter topics.
- *         schema:
- *           type: string
- *       - in: query
  *         name: q
- *         description: Query string for searching topics.
  *         schema:
  *           type: string
+ *         description: Search query for topics
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *         description: The page number for pagination
+ *       - in: query
+ *         name: order
+ *         schema:
+ *           type: string
+ *         description: Sort order ('asc' or 'desc')
+ *       - in: query
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         description: Filter topics by user ID
+ *       - in: query
+ *         name: type
+ *         schema:
+ *           type: string
+ *         description: Filter topics by type
  *     responses:
  *       200:
  *         description: Successful response with topic data.
  *         schema:
- *           type: object
- *           properties:
- *             data:
- *               type: array
- *               items:
- *                 $ref: '#/definitions/GetTopicArrayResponse'
+ *           $ref: '#/definitions/GetTopicArrayResponse'
  *       400:
  *         description: Bad Request. Invalid input or validation errors.
  *         schema:
@@ -274,26 +286,47 @@ router.get('/topic', updateAndGetViewOnRedis, async (req: ViewRequest, res: Resp
  */
 router.get('/topics', async (req: Request, res: Response) => {
     try {
-        let data;
-        const { userId, q } = req.query;
+        const { q, page, ...rest } = req.query;
+        const pageSize = 10;
+        const currentPage = parseInt(page as string) || 1;
 
-        if (!userId && !q) {
+        let data: TopicAttributes[] = [];
+
+        if (!rest && !q) {
             //TODO : return all topics
-        } else if (!userId && q) {
+            data = await topicService.getAllTopics({});
+        } else if (!rest && q) {
             data = await topicService.searchTopic(q as string);
-        } else if (!q && userId) {
+        } else if (!q && rest) {
+            const { order, userId, type } = rest;
             const { errors, input } = await RequestValidator(GetAllTopicReq, {
-                userId: req.query.userId,
+                userId,
+                type,
+                order,
             });
             if (errors) return res.status(400).json({ errors });
 
-            data = await topicService.getAllTopicsByUserId(input.userId as string);
+            data = await topicService.getAllTopics({
+                ...(order && { order: order as 'asc' | 'desc' }),
+                ...(userId && { userId: userId as string }),
+                ...(type && { type: type as TopicType }),
+            });
         }
 
-        // 상세 데이터는 미포함
-        // CandidateItemCount: 비정규화 컬럼
+        const totalItems: number = data.length;
+        const totalPages = Math.ceil(totalItems / pageSize);
+        const startIndex = (currentPage - 1) * pageSize;
+        const endIndex = currentPage * pageSize;
+        const itemsOnPage = data.slice(startIndex, endIndex);
 
-        return res.status(200).json({ data });
+        const pagination = {
+            currentPage,
+            totalPages,
+            hasPreviousPage: currentPage > 1,
+            hasNextPage: currentPage < totalPages,
+        };
+
+        return res.status(200).json({ data: itemsOnPage, pagination });
     } catch (error) {
         const err = error as Error;
         return res.status(500).json({ error: err.message });
