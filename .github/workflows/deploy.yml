@@ -1,0 +1,66 @@
+name: deploy
+
+on:
+    push:
+        branches: [develop]
+    pull_request:
+        branches: [develop]
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                node-version: [20.x]
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v3
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Check NPM Version
+              run: npm -v
+
+            - name: Create .env file
+              working-directory: ./
+              run: |
+                  pwd
+                  touch .env
+                  echo PORT=${{secrets.PORT}} >> .env
+                  echo MYSQL_PORT=${{secrets.MYSQL_PORT}} >> .env
+                  echo MYSQL_DB=${{secrets.MYSQL_DB}} >> .env
+                  echo MYSQL_DB_HOST=${{secrets.MYSQL_DB_HOST}} >> .env
+                  echo MYSQL_DB_USER=${{secrets.MYSQL_DB_USER}} >> .env
+                  echo MYSQL_DB_PASSWORD=${{secrets.MYSQL_DB_PASSWORD}} >> .env
+                  cat .env
+
+            - name: Build Server Files
+              working-directory: ./
+              run: |
+                  yarn
+                  yarn run build
+
+            - name: Zip Server Files
+              run: zip -r topic-server.zip ./dist ./scripts ./appspec.yml ./package.json ./.env
+
+            - name: AWS configure Credentials
+              uses: aws-actions/configure-aws-credentials@v1
+              with:
+                  aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                  aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                  aws-region: ap-northeast-2
+
+            - name: Upload to S3
+              run: aws s3 cp --region ap-northeast-2 topic-server.zip s3://minimum-social/deploy/
+
+            - name: Deploy with AWS CodeDeploy
+              run: aws deploy create-deployment
+                  --application-name minimum-social
+                  --deployment-config-name CodeDeployDefault.OneAtATime
+                  --deployment-group-name minimum-social-servcie
+                  --s3-location bucket=minimum-social-build,bundleType=zip,key=deploy/topic-server.zip
