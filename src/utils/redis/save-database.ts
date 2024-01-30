@@ -1,6 +1,6 @@
 import db from '@/models';
 import { getViewsByTopicIdFromRedis } from './view.redis';
-import { getUpdatedTopicIds } from '.';
+import { clearCachedView, getUpdatedTopicIds } from '.';
 
 export const updateViewInDatabase = async () => {
     // cache key 가져오기
@@ -16,4 +16,6 @@ export const updateViewInDatabase = async () => {
             }
         );
     }
+
+    await clearCachedView(); // 완료 후 캐시 클리어
 };

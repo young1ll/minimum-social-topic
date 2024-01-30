@@ -1,6 +1,7 @@
 import e from 'express';
 import topicRouter from './api/topic.routes';
 import candidateRouter from './api/candidate.routes';
+import votedRouter from './api/voted.routes';
 import db from './models';
 
 import swaggerUi from 'swagger-ui-express';
@@ -16,18 +17,20 @@ app.use(e.urlencoded({ extended: true }));
 
 app.use('/', topicRouter);
 app.use('/', candidateRouter);
+app.use('/', votedRouter);
 
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(specs));
 
 startScheduler({
-    cronExpression: '0 * * * *', // every hour
+    cronExpression: '*/10 * * * *', // every 10minutes
     scheduledFn: updateViewInDatabase,
     options: { scheduled: true, timezone: 'Asia/Seoul' },
 });
 
 sequelize
     .sync({
-        // alter: true
+        // alter: true,
+        // force: true,
     })
     .then(() => {
         console.log('Database synced');

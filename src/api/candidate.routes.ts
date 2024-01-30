@@ -9,10 +9,21 @@ const candidateRepo = new CandidateRepository();
 const router = e.Router();
 export const candidateService = new CandidateService({ candidateRepo });
 
-// POST /candidate - Create a new Candidate
-// 새로운 votedItem 생성
-// id, topicId, order, detail 필요
-// elected: true/false (선정여부)는 기본값 false
+/**
+ * @swagger
+ * /candidate:
+ *   post:
+ *     tags: [Candidate]
+ *     summary: 새로운 선택지 생성하기
+ *     description: body로 정보를 입력해 CREATE API를 호출합니다.
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         required: true
+ *         description: request body로 데이터를 입력해 CREATE API를 호출합니다.
+ *         schema:
+ *           $ref: '#/definitions/CreateCandidateBodyParams'
+ */
 router.post('/candidate', async (req: Request, res: Response) => {
     try {
         const { errors, input } = await RequestValidator(CandidateCreateReq, req.body);
@@ -28,7 +39,45 @@ router.post('/candidate', async (req: Request, res: Response) => {
     }
 });
 
-// GET /candidate-count - Get candidate count
+/**
+ * @swagger
+ * /candidate-count:
+ *   get:
+ *     tags: [Candidate]
+ *     summary: 선택지 갯수 가져오기
+ *     description: 특정 Topic의 선택지 갯수를 가져옵니다. query로 topicId, elected(선택지) 검색이 가능합니다.
+ *     parameters:
+ *       - in: query
+ *         name: topicId
+ *         required: true
+ *         description: ID of the topic to filter candidates.
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: elected
+ *         required: true
+ *         description: Whether the candidate is elected or not ("true" or "false").
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Successful response with query and data.
+ *         schema:
+ *           type: object
+ *           properties:
+ *             query:
+ *               type: object
+ *               properties:
+ *                 topicId:
+ *                   type: string
+ *                 elected:
+ *                   type: string
+ *               data:
+ *                 type: object
+ *                 properties:
+ *                   count:
+ *                     type: number
+ */
 router.get('/candidate-count', async (req: Request, res: Response) => {
     try {
         const { topicId, elected } = req.query;

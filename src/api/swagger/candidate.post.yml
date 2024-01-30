@@ -1,0 +1,20 @@
+definitions:
+    CreateCandidateBodyParams:
+        type: object
+        required:
+            - topicId
+            - order
+            - detail
+        properties:
+            topicId:
+                type: string
+                description: Topic ID
+                example: 'de73e957-5c64-4a85-ae7e-54ca753fb839'
+            order:
+                type: number
+                description: 순차
+                example: 1
+            detail:
+                type: string
+                description: 선택지 내용(현재 텍스트 입력만 지원)
+                example: '선택지 A'

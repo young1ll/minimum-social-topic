@@ -24,16 +24,32 @@ export const getViewFromRedis = async (req: ViewRequest, res: Response, next: Ne
     }
 };
 
+const viewedTopicsCache = new Set<string>(); // Set to store viewed topic IDs
+
 export const updateAndGetViewOnRedis = async (
     req: ViewRequest,
     res: Response,
     next: NextFunction
 ) => {
-    const { topicId } = req.query;
+    const { topicId, userId } = req.query;
+    const clientIP = req.ip;
+
     try {
-        await incrementView(topicId as string);
-        const views = await getViewsByTopicIdFromRedis(topicId as string);
-        req.view = views;
+        const uniqueIdentifier = userId || clientIP;
+
+        // await incrementView(topicId as string);
+        // const views = await getViewsByTopicIdFromRedis(topicId as string);
+        // req.view = views;
+
+        if (!viewedTopicsCache.has(`${uniqueIdentifier}:${topicId}`)) {
+            // If not, increment the view count and update the cache
+            await incrementView(topicId as string);
+            const views = await getViewsByTopicIdFromRedis(topicId as string);
+            req.view = views;
+
+            // Mark the topic as viewed by this identifier
+            viewedTopicsCache.add(`${uniqueIdentifier}:${topicId}`);
+        }
 
         next();
     } catch (error) {

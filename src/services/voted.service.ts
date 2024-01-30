@@ -16,6 +16,7 @@ export class VotedItemService {
         const transaction = await db.sequelize.transaction();
         try {
             const { candidateItemId, topicId, userId } = ids;
+            console.log({ ids, input });
 
             if (!candidateItemId) throw new Error('candidateItemId is required');
             if (!topicId) throw new Error('topicId is required');

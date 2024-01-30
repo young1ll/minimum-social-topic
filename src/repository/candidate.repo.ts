@@ -24,6 +24,7 @@ export class CandidateRepository implements ICandidateRepo {
         // return data;
         return data.toJSON();
     }
+    
     async getCandidateItemById(candidateId: string): Promise<CandidateItemAttributes | null> {
         const data = await CandidateItem.findOne({
             where: {

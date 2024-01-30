@@ -105,8 +105,8 @@ router.post('/topic', async (req: Request, res: Response) => {
             isSecretVote,
             castingVote,
             resultOpen,
-            startDate,
-            endDate,
+            startDate: new Date(startDate),
+            endDate: new Date(endDate),
         };
 
         // topic validation
@@ -124,8 +124,8 @@ router.post('/topic', async (req: Request, res: Response) => {
             {
                 topicId: topicData.id,
                 description,
-                eventDate,
-                eventLocation,
+                ...(type === 'event' && { eventDate: new Date(eventDate) }),
+                ...(type === 'event' && { eventLocation }),
             }
         );
         if (typeInputValidErrors) return res.status(400).json({ typeInputValidErrors });

@@ -81,7 +81,7 @@ export const VotedItem = ({ sequelize }: { sequelize: Sequelize }) => {
 
             // 반정규화
             topicStatus: {
-                type: DataTypes.ENUM('open', 'close', 'deleted'),
+                type: DataTypes.ENUM('pending', 'open', 'close', 'deleted'),
                 allowNull: false,
             },
             topicIsSecretVote: {
@@ -92,7 +92,7 @@ export const VotedItem = ({ sequelize }: { sequelize: Sequelize }) => {
                 // },
             },
             topicIsMultiChoice: {
-                type: DataTypes.NUMBER,
+                type: DataTypes.BOOLEAN,
                 // references: {
                 //     model: Topic({ sequelize }),
                 //     key: 'isPlurality',

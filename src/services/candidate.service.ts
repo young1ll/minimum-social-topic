@@ -1,6 +1,8 @@
 import { ICandidateRepo } from '@/interface/candidate-repo.interface';
+import { ITopicRepo } from '@/interface/topic-repo.interface';
 import db from '@/models';
 import { CandidateItemAttributes } from '@/models/candidateItem.model';
+import { Op } from 'sequelize';
 import { Transaction } from 'sequelize';
 
 export class CandidateService {
@@ -22,6 +24,12 @@ export class CandidateService {
                 transaction,
                 input: { topicId, order, detail },
             });
+            if (!result) throw new Error('failed to create candidate');
+
+            await db.Topic.increment(
+                { candidateItemCount: 1 },
+                { where: { id: topicId }, transaction }
+            );
             await transaction.commit();
             // const data = Promise.resolve({ id: 1, ...(input as any) });
 
@@ -101,10 +109,19 @@ export class CandidateService {
         try {
             if (!candidateId) throw new Error('id is required');
 
+            const thisCandidate = await this._candidateRepository.getCandidateItemById(candidateId);
+            if (!thisCandidate) throw new Error('candidate not found');
+
             const result = await this._candidateRepository.deleteCandidateItem({
                 transaction,
                 candidateId,
             });
+            if (!result) throw new Error('failed to delete candidate');
+
+            await db.Topic.decrement(
+                { candidateItemCount: 1 },
+                { where: { id: thisCandidate.topicId }, transaction }
+            );
             await transaction.commit();
 
             return result;
@@ -123,6 +140,11 @@ export class CandidateService {
                 transaction,
                 candidateIds,
             });
+
+            await db.Topic.decrement(
+                { candidateItemCount: 1 },
+                { where: { id: { [Op.in]: candidateIds } }, transaction }
+            );
             await transaction.commit();
 
             return result;

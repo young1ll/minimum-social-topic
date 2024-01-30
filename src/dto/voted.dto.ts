@@ -22,3 +22,23 @@ export class VotedCreateReq {
     @IsNotEmpty()
     userId: string;
 }
+
+export class VotedGetReq {
+    @IsUUID()
+    @IsNotEmpty()
+    topicId: string;
+
+    @IsString()
+    @IsNotEmpty()
+    userId: string;
+}
+
+export class VotedUpdateReq {
+    @IsUUID()
+    @IsNotEmpty()
+    votedId: string;
+
+    @IsUUID()
+    @IsNotEmpty()
+    candidateItemId: string;
+}

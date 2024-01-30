@@ -42,18 +42,20 @@ db.PollTopic.belongsTo(db.Topic, { foreignKey: 'topicId' });
 db.EventTopic.belongsTo(db.Topic, { foreignKey: 'topicId' });
 
 db.CandidateItem.belongsTo(db.Topic, { foreignKey: 'topicId' });
-db.CandidateItem.afterCreate(async (item, option) => {
-    await db.Topic.increment(
-        { candidateItemCount: 1 },
-        { where: { id: item.getDataValue('topicId') } }
-    );
-});
-db.CandidateItem.beforeDestroy(async (item, option) => {
-    await db.Topic.decrement(
-        { candidateItemCount: 1 },
-        { where: { id: item.getDataValue('topicId') } }
-    );
-});
+
+// Transaction에 포함시키기 위해 servcie 내부에서 수행합니다.
+// db.CandidateItem.afterCreate(async (item, option) => {
+//     await db.Topic.increment(
+//         { candidateItemCount: 1 },
+//         { where: { id: item.getDataValue('topicId') } }
+//     );
+// });
+// db.CandidateItem.beforeDestroy(async (item, option) => {
+//     await db.Topic.decrement(
+//         { candidateItemCount: 1 },
+//         { where: { id: item.getDataValue('topicId') } }
+//     );
+// });
 
 legacyUser.hasMany(db.VotedItem, { foreignKey: 'userId', onDelete: 'cascade', hooks: true });
 db.VotedItem.belongsTo(legacyUser, { foreignKey: 'userId' });

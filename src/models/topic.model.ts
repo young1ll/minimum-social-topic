@@ -55,8 +55,8 @@ export const Topic = ({ sequelize }: { sequelize: Sequelize }) => {
                 allowNull: false,
             },
             isMultiChoice: {
-                type: DataTypes.NUMBER,
-                defaultValue: 0,
+                type: DataTypes.BOOLEAN,
+                defaultValue: false,
                 allowNull: false,
             },
             castingVote: {
