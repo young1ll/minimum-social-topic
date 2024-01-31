@@ -47,7 +47,7 @@ jobs:
                   yarn run build
 
             - name: Zip Server Files
-              run: zip -r topic-server.zip ./dist ./src ./docker-compose.yml ./scripts ./appspec.yml ./yarn.lock ./tsconfig.json ./package.json ./.env
+              run: zip -r topic-server.zip ./dist ./src ./Dockerfile ./docker-compose.yml ./scripts ./appspec.yml ./yarn.lock ./tsconfig.json ./package.json ./.env
 
             - name: AWS configure Credentials
               uses: aws-actions/configure-aws-credentials@v1

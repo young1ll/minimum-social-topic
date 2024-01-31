@@ -2,8 +2,8 @@ FROM node:20.11.0-alpine
 
 WORKDIR /app
 
-# MySQL 호스트 설정
-ENV MYSQL_DB_HOST host.docker.internal
+# # MySQL 호스트 설정
+# ENV MYSQL_DB_HOST host.docker.internal
 
 COPY package*.json yarn.lock .
 RUN yarn install
