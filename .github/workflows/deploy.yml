@@ -64,4 +64,4 @@ jobs:
                   --application-name minimum-social
                   --deployment-config-name CodeDeployDefault.OneAtATime
                   --deployment-group-name topic-service
-                  --s3-location bucket=minimum-social-build,bundleType=zip,key=deploy/topic-server.zip
+                  --s3-location bucket=minimum-social,bundleType=zip,key=deploy/topic-server.zip
