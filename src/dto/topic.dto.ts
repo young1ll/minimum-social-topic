@@ -102,7 +102,7 @@ export class UpdateTopicReq {
     @IsOptional()
     isSecretVote?: boolean;
 
-    @IsNumber()
+    @IsBoolean()
     @IsOptional()
     isMultiChoice?: number;
 
@@ -121,6 +121,18 @@ export class UpdateTopicReq {
     @IsDate()
     @IsOptional()
     endDate?: Date;
+
+    @IsString()
+    @IsOptional()
+    description?: Date;
+
+    @IsDate()
+    @IsOptional()
+    eventDate?: Date;
+
+    @IsString()
+    @IsOptional()
+    eventLocation?: string;
 }
 
 export class UpdateTopicViewReq {

@@ -28,6 +28,9 @@ export class VotedItemService {
                 ids,
                 input,
             });
+
+            await db.Topic.increment({ votedCount: 1 }, { where: { id: topicId }, transaction });
+
             await transaction.commit();
 
             return result;
@@ -85,6 +88,16 @@ export class VotedItemService {
             if (!userId) throw new Error('userId is required');
 
             return await this._votedItemRepository.countVotedItemByUserId(userId);
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async countByTopicId(topicId: string): Promise<number> {
+        try {
+            if (!topicId) throw new Error('userId is required');
+
+            return await this._votedItemRepository.countVotedItemByTopicId(topicId);
         } catch (error) {
             throw error;
         }

@@ -2,7 +2,7 @@ FROM node:20.11.0-alpine
 
 WORKDIR /app
 
-# # MySQL 호스트 설정
+# # MySQL 호스트 설정: 테스트 용
 # ENV MYSQL_DB_HOST host.docker.internal
 
 COPY package*.json yarn.lock .

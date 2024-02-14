@@ -31,6 +31,9 @@ export interface IVotedItemRepo {
     // userId에 따른 votedItem 갯수
     countVotedItemByUserId(userId: string): Promise<number>;
 
+    // topicId에 따른 votedItem 갯수
+    countVotedItemByTopicId(topicId: string): Promise<number>;
+
     searchVotedItemByTopicTitle(query: string): Promise<VotedItemAttributes[] | null>;
 
     // votedItem 변경하기

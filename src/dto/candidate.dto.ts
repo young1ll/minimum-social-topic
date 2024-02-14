@@ -22,6 +22,28 @@ export class CandidateCreateReq {
     detail: string;
 }
 
+export class CandidateUpdateReq {
+    @IsUUID()
+    @IsNotEmpty()
+    id: string;
+
+    @IsUUID()
+    @IsNotEmpty()
+    topicId: string;
+
+    @IsNumber()
+    @IsOptional()
+    order: number;
+
+    @IsString()
+    @IsOptional()
+    detail?: string;
+
+    @IsBoolean()
+    @IsOptional()
+    elected?: boolean;
+}
+
 export class CandidateCountReq {
     @IsUUID()
     @IsOptional()

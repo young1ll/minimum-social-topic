@@ -29,7 +29,7 @@ startScheduler({
 
 sequelize
     .sync({
-        // alter: true,
+        alter: true,
         // force: true,
     })
     .then(() => {

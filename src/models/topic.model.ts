@@ -74,6 +74,11 @@ export const Topic = ({ sequelize }: { sequelize: Sequelize }) => {
                 allowNull: false,
             },
             // 비정규화 컬럼
+            votedCount: {
+                type: DataTypes.INTEGER,
+                defaultValue: 0,
+            },
+            // 비정규화 컬럼
             candidateItemCount: {
                 type: DataTypes.INTEGER,
                 defaultValue: 0,

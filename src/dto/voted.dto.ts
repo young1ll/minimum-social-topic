@@ -33,6 +33,16 @@ export class VotedGetReq {
     userId: string;
 }
 
+export class VotedGetQuery {
+    @IsUUID()
+    @IsOptional()
+    topicId: string;
+
+    @IsString()
+    @IsOptional()
+    userId: string;
+}
+
 export class VotedUpdateReq {
     @IsUUID()
     @IsNotEmpty()
@@ -41,4 +51,10 @@ export class VotedUpdateReq {
     @IsUUID()
     @IsNotEmpty()
     candidateItemId: string;
+}
+
+export class VotedDeleteReq {
+    @IsUUID()
+    @IsNotEmpty()
+    votedId: string;
 }

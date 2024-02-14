@@ -30,7 +30,7 @@ export class TopicRepository implements ITopicRepo {
 
         return data.toJSON();
     }
-    async count(userId: string, type?: TopicType): Promise<number> {
+    async countByUserId(userId: string, type?: TopicType): Promise<number> {
         const data = Topic.count({
             where: {
                 userId,

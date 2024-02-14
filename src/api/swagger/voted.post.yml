@@ -1,0 +1,105 @@
+definitions:
+    CreateVotedBodyParams:
+        type: object
+        required:
+            - candidateItemId
+            - type
+            - title
+        properties:
+            candidateItemId:
+                type: string
+                description: 선택지(candidateItem) ID.
+                example: 'de73e957-5c64-4a85-ae7e-54ca753fb839'
+            topicId:
+                type: string
+                description: 토픽 ID
+                example: 'de73e957-5c64-4a85-ae7e-54ca753fb839'
+            userId:
+                type: string
+                description: 사용자 ID
+                example: 'de73e957-5c64-4a85-ae7e-54ca753fb839'
+    CreateVotedSuccessResponse:
+        type: object
+        description: CREATE VOTED ITEM SUCCESS RESPONSE
+        properties:
+            data:
+                type: object
+                properties:
+                    id:
+                        type: string
+                        description: votedItem ID.
+                        example: 'de73e957-5c64-4a85-ae7e-54ca753fb839'
+                    topicId:
+                        type: string
+                        description: 토픽 ID
+                        example: 'de73e957-5c64-4a85-ae7e-54ca753fb839'
+                    userId:
+                        type: string
+                        description: 사용자(투표자) ID
+                        example: 'de73e957-5c64-4a85-ae7e-54ca753fb839'
+                    candidateItemId:
+                        type: string
+                        description: 선택지(candidateItem) ID
+                        example: 'de73e957-5c64-4a85-ae7e-54ca753fb839'
+                    topicTitle:
+                        type: string
+                        description: 토픽 제목
+                        example: '토픽 제목'
+                    topicType:
+                        type: string
+                        description: 토픽 형식
+                        example: 'poll'
+                    topicStatus:
+                        type: string
+                        description: 토픽 상태 정보
+                        example: 'open'
+                    topicDescription:
+                        type: string
+                        description: 토픽 주제 내용
+                        example: '토픽 주제 내용'
+                    topicIsMultiChoice:
+                        type: boolean
+                        description: 토픽 중복 투표 여부
+                        example: false
+                    topicIsSecretVote:
+                        type: boolean
+                        description: 토픽 비밀 투표 여부
+                        example: true
+                    topicResultOpen:
+                        type: boolean
+                        description: 투표 결과 공개 여부
+                        example: true
+                    topicCastingVote:
+                        type: string
+                        description: 투표 최종 결정자 ID
+                        example: 'de73e957-5c64-4a85-ae7e-54ca753fb839'
+                    topicEventDate:
+                        type: string
+                        description: 이벤트 날짜
+                        example: '2022-01-01'
+                    topicEventLocation:
+                        type: string
+                        description: 이벤트 위치 정보
+                        example: 'Seoul'
+                    candidateDetail:
+                        type: string
+                        description: 투표한 선택지의 내용
+                        example: '선택지 A'
+                    candidateOrder:
+                        type: number
+                        description: 투표한 선택지의 순차
+                        example: 1
+                    candidateElected:
+                        type: boolean
+                        description: 투표된 선택지의 선출 여부
+                        example: false
+                    createdAt:
+                        type: string
+                        format: date
+                        description: 생성 날짜(투표 일)
+                        example: '2022-01-01'
+                    updatedAt:
+                        type: string
+                        format: date
+                        description: 수정 날짜
+                        example: '2022-01-01'

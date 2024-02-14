@@ -12,7 +12,7 @@ export interface ITopicRepo {
     }): Promise<TopicAttributes>;
 
     // 사용자의 Topic 수
-    count(userId: string, type?: TopicType): Promise<number>;
+    countByUserId(userId: string, type?: TopicType): Promise<number>;
 
     // 특정 Topic의 상세 데이터
     getTopicByTopicId(topicId: string): Promise<TopicAttributes | null>;
