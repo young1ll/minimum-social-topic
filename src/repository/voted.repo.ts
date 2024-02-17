@@ -66,6 +66,16 @@ export class VotedItemRepository implements IVotedItemRepo {
         return data;
     }
 
+    async countVotedItemByTopicId(topicId: string): Promise<number> {
+        const data = await VotedItem.count({
+            where: {
+                topicId,
+            },
+        });
+
+        return data;
+    }
+
     async searchVotedItemByTopicTitle(query: string): Promise<VotedItemAttributes[] | null> {
         const data = await VotedItem.findAll({
             where: Sequelize.literal(`(

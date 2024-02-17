@@ -77,11 +77,15 @@ export class TopicService {
         }
     }
 
-    async count(userId: string, type?: TopicType): Promise<number> {
+    async count({ userId, type }: { userId: string; type?: TopicType }): Promise<number> {
         try {
-            if (!userId) throw new Error('userId is required');
+            if (!userId) {
+                throw new Error('userId or username is required');
+            } else {
+                return await this._topicRepository.countByUserId(userId, type);
+            }
 
-            return await this._topicRepository.count(userId, type);
+            // return await this._topicRepository.count(userId, type);
         } catch (error) {
             throw error;
         }

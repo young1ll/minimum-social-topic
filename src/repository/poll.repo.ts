@@ -39,8 +39,11 @@ export class PollRepository implements IPollRepo {
 
         return data?.map((poll) => poll.toJSON()) || null;
     }
-    async updatePoll(input: PollTopicAttributes): Promise<number> {
-        const { topicId, description } = input;
+    async updatePoll(
+        topicId: Pick<PollTopicAttributes, 'topicId'>,
+        input: Partial<PollTopicAttributes>
+    ): Promise<number> {
+        const { description } = input;
         const data = await PollTopic.update(
             { description },
             {

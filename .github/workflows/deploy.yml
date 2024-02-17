@@ -39,6 +39,7 @@ jobs:
                   echo MYSQL_DB_PASSWORD=${{secrets.MYSQL_DB_PASSWORD}} >> .env
                   cat .env
 
+            # 사실 빌드 필요없음(어차피 도커 씀)
             - name: Build Server Files
               working-directory: ./
               run: |
@@ -46,7 +47,7 @@ jobs:
                   yarn run build
 
             - name: Zip Server Files
-              run: zip -r topic-server.zip ./dist ./scripts ./appspec.yml ./package.json ./.env
+              run: zip -r topic-server.zip ./dist ./src ./Dockerfile ./docker-compose.yml ./scripts ./appspec.yml ./yarn.lock ./tsconfig.json ./package.json ./.env
 
             - name: AWS configure Credentials
               uses: aws-actions/configure-aws-credentials@v1
@@ -63,4 +64,4 @@ jobs:
                   --application-name minimum-social
                   --deployment-config-name CodeDeployDefault.OneAtATime
                   --deployment-group-name topic-service
-                  --s3-location bucket=minimum-social-build,bundleType=zip,key=deploy/topic-server.zip
+                  --s3-location bucket=minimum-social,bundleType=zip,key=deploy/topic-server.zip

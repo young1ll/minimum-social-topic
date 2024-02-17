@@ -1,4 +1,9 @@
-import { CandidateCountReq, CandidateCreateReq, CandidateDeleteReq } from '@/dto/candidate.dto';
+import {
+    CandidateCountReq,
+    CandidateCreateReq,
+    CandidateDeleteReq,
+    CandidateUpdateReq,
+} from '@/dto/candidate.dto';
 import { CandidateRepository } from '@/repository/candidate.repo';
 import { CandidateService } from '@/services/candidate.service';
 import { RequestValidator } from '@/utils/request-validator';
@@ -88,6 +93,41 @@ router.get('/candidate-count', async (req: Request, res: Response) => {
         if (errors) return res.status(400).json({ errors });
 
         const data = await candidateService.count(input.topicId, input.elected);
+
+        return res.status(200).json({ query: input, data: data });
+    } catch (error) {
+        const err = error as Error;
+        return res.status(500).json({ error: err.message });
+    }
+});
+
+/**
+ * @swagger
+ * /candidate:
+ *   put:
+ *     tags: [Candidate]
+ *     summary: 선택지 수정하기
+ *     description: body로 정보를 입력해 UPDATE API를 호출합니다.
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         required: true
+ *         description: request body로 데이터를 입력해 UPDATE API를 실행합니다.
+ *         schema:
+ *           $ref: '#/definitions/UpdateCandidateBodyParams'
+ */
+router.put('/candidate', async (req: Request, res: Response) => {
+    try {
+        const { errors, input } = await RequestValidator(CandidateUpdateReq, req.body);
+        if (errors) return res.status(400).json({ errors });
+
+        const { id, topicId, order, detail, elected } = input;
+        const data = await candidateService.updateCandidateById(id, {
+            topicId,
+            order,
+            detail,
+            elected,
+        });
 
         return res.status(200).json({ query: input, data: data });
     } catch (error) {

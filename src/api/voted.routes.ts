@@ -1,5 +1,11 @@
 import { TopicType } from '@/dto/type.dto';
-import { VotedCreateReq, VotedGetReq, VotedUpdateReq } from '@/dto/voted.dto';
+import {
+    VotedCreateReq,
+    VotedDeleteReq,
+    VotedGetQuery,
+    VotedGetReq,
+    VotedUpdateReq,
+} from '@/dto/voted.dto';
 import {
     CandidateRepository,
     EventRepository,
@@ -35,9 +41,14 @@ const votedService = new VotedItemService({ votedItemRepo });
  *       - in: body
  *         name: body
  *         required: true
- *         description: body
+ *         description: votedItem 생성
  *         schema:
  *           $ref: '#/definitions/CreateVotedBodyParams'
+ *     responses:
+ *       200:
+ *         description: Successful response with created votedItem.
+ *         schema:
+ *           $ref: '#/definitions/CreateVotedSuccessResponse'
  */
 router.post('/voted', async (req: Request, res: Response) => {
     try {
@@ -113,6 +124,30 @@ router.post('/voted', async (req: Request, res: Response) => {
     }
 });
 
+/**
+ * @swagger
+ * /voted:
+ *   get:
+ *     tags: [Voted]
+ *     summary: GET VOTED ITEM(단일 또는 배열)
+ *     description: topicId, userId로 votedItem 가져오기
+ *     parameters:
+ *       - in: query
+ *         name: topicId
+ *         required: true
+ *         description: ID of the topic to filter candidates.
+ *         type: string
+ *       - in: query
+ *         name: userId
+ *         required: true
+ *         description: ID of the user to filter candidates.
+ *         type: string
+ *     responses:
+ *       200:
+ *         description: Successful response with query and data.
+ *         schema:
+ *           $ref: '#/definitions/CreateVotedSuccessResponse'
+ */
 router.get('/voted', async (req: Request, res: Response) => {
     try {
         const { topicId, userId } = req.query;
@@ -135,6 +170,82 @@ router.get('/voted', async (req: Request, res: Response) => {
     }
 });
 
+/**
+ * @swagger
+ * /voted-count:
+ *   get:
+ *     tags: [Voted]
+ *     summary: GET VOTED ITEM COUNT
+ *     description: topicId, userId로 votedItem 갯수 가져오기
+ *     parameters:
+ *       - in: query
+ *         name: topicId
+ *         required: true
+ *         description: ID of the topic to filter candidates.
+ *         type: string
+ *       - in: query
+ *         name: userId
+ *         required: true
+ *         description: ID of the user to filter candidates.
+ *         type: string
+ *     responses:
+ *       200:
+ *         description: Successful response with query and data.
+ *         schema:
+ *           type: object
+ *           properties:
+ *             query:
+ *               type: object
+ *               properties:
+ *                 topicId:
+ *                   type: string
+ *                 userId:
+ *                   type: string
+ *             data:
+ *               type: number
+ */
+router.get('voted-count', async (req: Request, res: Response) => {
+    try {
+        const { topicId, userId } = req.query;
+
+        const { errors, input } = await RequestValidator(VotedGetQuery, {
+            topicId,
+            userId,
+        });
+        if (errors) return res.status(400).json({ errors });
+
+        if (input.topicId && !input.userId) {
+            const data = await votedService.countByTopicId(input.topicId as string);
+            return res.status(200).json({ query: input, data: data });
+        } else if (!input.topicId && input.userId) {
+            const data = await votedService.countByUserId(input.userId as string);
+            return res.status(200).json({ query: input, data: data });
+        }
+    } catch (error) {
+        const err = error as Error;
+        return res.status(500).json({ error: err.message });
+    }
+});
+
+/**
+ * @swagger
+ * /voted:
+ *   put:
+ *     tags: [Voted]
+ *     summary: VOTED ITEM 수정
+ *     description: topicId, userId로 votedItem 변경
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         required: true
+ *         schema:
+ *           $ref: '#/definitions/CreateVotedBodyParams'
+ *     responses:
+ *       200:
+ *         description: Successful response with updated data.
+ *         schema:
+ *           $ref: '#/definitions/CreateVotedSuccessResponse'
+ */
 router.put('/voted', async (req: Request, res: Response) => {
     try {
         const { errors, input } = await RequestValidator(VotedUpdateReq, req.body);
@@ -157,6 +268,51 @@ router.put('/voted', async (req: Request, res: Response) => {
 
         const data = await votedService.updateVotedItem(votedId, updateInput);
         return res.status(200).json({ data: data });
+    } catch (error) {
+        const err = error as Error;
+        return res.status(500).json({ error: err.message });
+    }
+});
+
+/**
+ * @swagger
+ * /voted:
+ *   delete:
+ *     tags: [Voted]
+ *     summary: VOTED ITEM 삭제
+ *     description: votedId로 votedItem 삭제
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         required: true
+ *         schema:
+ *           type: object
+ *           properties:
+ *             votedId:
+ *               type: string
+ *     responses:
+ *       200:
+ *         description: Successful response with deleted data.
+ *         schema:
+ *           type: object
+ *           properties:
+ *             data:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Data Deleted Successfully
+ *                 deleted:
+ *                   type: number
+ *                   description: 1
+ */
+router.delete('/voted', async (req: Request, res: Response) => {
+    try {
+        const { errors, input } = await RequestValidator(VotedDeleteReq, req.body);
+        if (errors) return res.status(400).json({ errors });
+
+        const data = await votedService.deleteVotedItem(input.votedId);
+        return res.status(200).json({ message: 'Data Deleted Successfully', data });
     } catch (error) {
         const err = error as Error;
         return res.status(500).json({ error: err.message });

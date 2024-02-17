@@ -389,12 +389,13 @@ router.get('/topic-count', async (req: Request, res: Response) => {
                     .status(400)
                     .json({ error: 'Invalid type: type must be "poll" or "event"' });
             }
-
-            const count = await topicService.count(userId as string, type as TopicType);
-            return res.status(200).json({ data: count });
         }
 
-        const count = await topicService.count(userId as string);
+        const count = await topicService.count({
+            userId: userId as string,
+            type: type as TopicType,
+        });
+
         return res.status(200).json({ data: count });
     } catch (error) {
         const err = error as Error;
@@ -440,16 +441,63 @@ router.get('/topic-count', async (req: Request, res: Response) => {
  */
 router.put('/topic', async (req: Request, res: Response) => {
     try {
-        const { errors, input } = await RequestValidator(UpdateTopicReq, req.body);
+        const {
+            type: bodyType,
+            startDate: bodyStartDate,
+            endDate: bodyEndDate,
+            eventDate: bodyEventDate,
+            eventLocation: bodyEventLocation,
+            ...restBody
+        } = req.body;
+
+        // Date type Parsing
+        const parsedStartDate = new Date(bodyStartDate);
+        const parsedEndDate = new Date(bodyEndDate);
+        const parsedEventDate = new Date(bodyEventDate);
+
+        const parsedBody = {
+            type: bodyType,
+            startDate: parsedStartDate,
+            endDate: parsedEndDate,
+            ...(bodyType === 'event' && { eventDate: parsedEventDate }),
+            ...(bodyType === 'event' && { eventLocation: bodyEventLocation }),
+            ...restBody,
+        };
+
+        console.log(parsedBody);
+
+        const { errors, input } = await RequestValidator(UpdateTopicReq, parsedBody);
         if (errors) return res.status(400).json({ errors });
 
-        const { topicId, userId, ...rest } = input;
-        const data = await topicService.updateTopicById(topicId, rest);
+        const { topicId, userId, eventDate, eventLocation, description, ...rest } = input;
+        const topicData = await topicService.updateTopicById(topicId, rest);
 
-        if (data == 0) {
-            return res.status(200).json({ message: 'No Data Updated', data });
+        if (topicData == 0) {
+            return res.status(400).json({ message: 'Data Not Found', topicData });
         } else {
-            const result = await topicService.getTopicByTopicId(topicId);
+            const typeInput = {
+                ...(rest.type === 'poll'
+                    ? ({ topicId, description: description } as PollTopicAttributes)
+                    : ({
+                          topicId,
+                          description: description,
+                          eventDate,
+                          eventLocation,
+                      } as EventTopicAttributes)),
+            };
+            const typeData = await typeService.updateType({ type: rest.type, input: typeInput });
+
+            const topicResult = await topicService.getTopicByTopicId(topicId);
+            const typeResult = await typeService.getTypeByTopicId({
+                topicId: topicId as string,
+                type: rest.type,
+            });
+
+            const { id, topicId: typeTopicId, ...typeDataWithoutIds } = typeResult || {};
+            const result = {
+                ...topicResult,
+                ...typeDataWithoutIds,
+            };
 
             return res.status(200).json({ message: 'Data Updated Successfully', result });
         }
