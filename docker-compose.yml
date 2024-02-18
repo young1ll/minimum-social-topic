@@ -16,8 +16,8 @@ services:
         image: redis:alpine
         # volumes:
         # - ./redis.conf:/usr/local/etc/redis/redis.conf
-        command: redis-server --port 6379
+        # command: redis-server --port 6379
         # extra_hosts:
         #     - 'host.docker.internal'
-        ports:
-            - 6379:6379
+        # ports:
+        # - 6379:6379
