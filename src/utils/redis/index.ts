@@ -2,8 +2,10 @@ import { Redis } from 'ioredis';
 import { redisConfig } from '@/config';
 
 export const redisConnection = new Redis({
-    host: redisConfig.HOST || 'localhost',
-    port: redisConfig.PORT,
+    host: 'localhost',
+    port: 6379,
+    // host: redisConfig.HOST || '0.0.0.0',
+    // port: redisConfig.PORT,
     // username: redisConfig.USER,
     // password: redisConfig.PASSWORD,
     reconnectOnError: (err: Error) => {
