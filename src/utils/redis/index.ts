@@ -2,10 +2,10 @@ import { Redis } from 'ioredis';
 import { redisConfig } from '@/config';
 
 export const redisConnection = new Redis({
-    // host: 'topic-redis',
-    // port: 6379,
+    // host: 'host.docker.internal',
     // host: 'topic-app-topic-redis-1',
-    // host: 'noderedis',
+    host: 'redis://127.0.0.0.1',
+    port: 6379,
     // host: redisConfig.HOST || '0.0.0.0',
     // port: redisConfig.PORT,
     // username: redisConfig.USER,
