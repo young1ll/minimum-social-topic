@@ -5,6 +5,8 @@ services:
         build: .
         ports:
             - '8001:8001'
+        environment:
+            - REDIS_URL=redis://redis:6379/0
         depends_on:
             - topic-redis
         networks:

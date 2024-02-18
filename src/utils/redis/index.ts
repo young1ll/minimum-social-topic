@@ -21,9 +21,7 @@ import { redisConfig } from '@/config';
 //     showFriendlyErrorStack: true,
 // });
 
-export const redisConnection = new Redis(
-    `redis://${redisConfig.USER}:${redisConfig.PASSWORD}@${redisConfig.HOST}:${redisConfig.PORT}`
-);
+export const redisConnection = new Redis(process.env.REDIS_URL || 'redis://127.0.0.1:6379/0');
 
 // export const redisConnection = new Cluster(
 //     [
