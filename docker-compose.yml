@@ -1,6 +1,7 @@
 version: '1'
 services:
     nodeapp:
+        container_name: 'nodeapp'
         build: .
         ports:
             - '8001:8001'
@@ -9,10 +10,11 @@ services:
         networks:
             - topic-redis-network
     topic-redis:
+        container_name: 'noderedis'
         image: redis:alpine
         # volumes:
         # - ./redis.conf:/usr/local/etc/redis/redis.conf
-        command: redis-server
+        command: redis-server --port 6379
         ports:
             - 6379:6379
         networks:

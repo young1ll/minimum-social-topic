@@ -4,8 +4,8 @@ import { redisConfig } from '@/config';
 export const redisConnection = new Redis({
     // host: 'topic-redis',
     port: 6379,
-    host: 'topic-app-topic-redis-1',
-    // host: 'localhost',
+    // host: 'topic-app-topic-redis-1',
+    host: 'noderedis',
     // host: redisConfig.HOST || '0.0.0.0',
     // port: redisConfig.PORT,
     // username: redisConfig.USER,
