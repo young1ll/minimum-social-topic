@@ -10,8 +10,8 @@ services:
             - topic-redis-network
     topic-redis:
         image: redis:alpine
-        volumes:
-            - ./redis.conf:/usr/local/etc/redis/redis.conf
+        # volumes:
+        # - ./redis.conf:/usr/local/etc/redis/redis.conf
         command: redis-server
         ports:
             - 6379:6379
