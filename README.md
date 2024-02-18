@@ -28,5 +28,7 @@
 ## Issues
 #### EC2에서 docker-compose로 REDIS를 사용하는 경우
 - EC2 내에서 의도한 host, port, password 등의 설정으로 실행되고 있는지 반드시 확인
-- EC2에서 컨테이너 실행 후, 명시적으로 HOST를 지정
+- EC2에서 컨테이너 실행 후, 명시적으로 HOST를 지정(`topic-app-topic-redis-1`)
+  - topic-server에서 사용하는 `ioredis`에서는 컨테이너 이름만 지정해주면 됩니다.
+  - `redis`를 사용하는 경우 `redis://{CONTAINER_NAME}`으로 지정합니다.
 - EC2의 docker 컨테이너 진입 명령어를 통해 실행 여부, 에러 원인 등을 직접 확인
