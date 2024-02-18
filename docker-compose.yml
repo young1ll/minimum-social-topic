@@ -9,8 +9,8 @@ services:
             - REDIS_URL=redis://redis:6379/0
         depends_on:
             - topic-redis
-        networks:
-            - topic-redis-network
+        links:
+            - topic-redis
     topic-redis:
         container_name: 'noderedis'
         image: redis:alpine
@@ -21,8 +21,3 @@ services:
         #     - 'host.docker.internal'
         ports:
             - 6379:6379
-        networks:
-            - topic-redis-network
-networks:
-    topic-redis-network:
-        driver: bridge
