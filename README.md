@@ -24,3 +24,7 @@
 - [minimum-social-user](https://github.com/young1ll/minimum-social-user)
 - minimum-social-topic
 - [minimum-social-front](https://github.com/young1ll/minimum-social-front)
+
+## Issues
+#### EC2에서 docker-compose로 REDIS를 사용하는 경우
+- 주의: EC2 내에서 의도한 port, password 등의 설정으로 실행되고 있는지 반드시 확인해야 합니다.
