@@ -5,7 +5,7 @@ export const redisConnection = new Redis({
     host: redisConfig.HOST,
     port: redisConfig.PORT,
     // username: redisConfig.USER,
-    password: redisConfig.PASSWORD,
+    // password: redisConfig.PASSWORD,
     reconnectOnError: (err: Error) => {
         const targetError = 'READONLY';
         if (err.message && err.message.slice(0, targetError.length) === targetError) {
