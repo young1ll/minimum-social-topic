@@ -21,17 +21,21 @@ import { redisConfig } from '@/config';
 //     showFriendlyErrorStack: true,
 // });
 
-export const redisConnection = new Cluster(
-    [
-        {
-            host: redisConfig.HOST || '',
-            port: redisConfig.PORT,
-        },
-    ],
-    {
-        dnsLookup: (address, callback) => callback(null, address),
-    }
+export const redisConnection = new Redis(
+    `redis://${redisConfig.USER}:${redisConfig.PASSWORD}@${redisConfig.HOST}:${redisConfig.PORT}`
 );
+
+// export const redisConnection = new Cluster(
+//     [
+//         {
+//             host: redisConfig.HOST || '',
+//             port: redisConfig.PORT,
+//         },
+//     ],
+//     {
+//         dnsLookup: (address, callback) => callback(null, address),
+//     }
+// );
 
 export const getUpdatedTopicIds = async () => {
     const keys = await redisConnection.keys('topic:*:view');
