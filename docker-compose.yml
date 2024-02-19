@@ -6,12 +6,12 @@ services:
         ports:
             - '8001:8001'
         # environment:
-        # - REDIS_URL=redis://topic-redis:6379/0
+        # - REDIS_URL=redis://noderedis:6379/0
         depends_on:
-            - topic-redis
+            - noderedis
         links:
-            - topic-redis
-    topic-redis:
+            - noderedis
+    noderedis:
         container_name: 'noderedis'
         image: redis:alpine
         # volumes:
