@@ -4,8 +4,8 @@ import { redisConfig } from '@/config';
 export const redisConnection = new Redis({
     // host: 'host.docker.internal',
     // host: 'topic-app-topic-redis-1',
-    host: 'noderedis',
-    port: 6379,
+    // host: 'noderedis',
+    // port: 6379,
     // host: redisConfig.HOST || '0.0.0.0',
     // port: redisConfig.PORT,
     // username: redisConfig.USER,
