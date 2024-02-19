@@ -1,27 +1,27 @@
 import { Cluster, Redis } from 'ioredis';
 import { redisConfig } from '@/config';
 
-// export const redisConnection = new Redis({
-//     // host: 'host.docker.internal',
-//     // host: 'topic-app-topic-redis-1',
-//     host: 'noderedis',
-//     port: 6379,
-//     // host: redisConfig.HOST || '0.0.0.0',
-//     // port: redisConfig.PORT,
-//     // username: redisConfig.USER,
-//     // password: redisConfig.PASSWORD,
-//     reconnectOnError: (err: Error) => {
-//         const targetError = 'READONLY';
-//         if (err.message && err.message.slice(0, targetError.length) === targetError) {
-//             // Redis가 READONLY 상태이면 재연결을 시도하도록 설정
-//             return true;
-//         }
-//         return false;
-//     },
-//     showFriendlyErrorStack: true,
-// });
+export const redisConnection = new Redis({
+    // host: 'host.docker.internal',
+    // host: 'topic-app-topic-redis-1',
+    host: 'noderedis',
+    port: 6379,
+    // host: redisConfig.HOST || '0.0.0.0',
+    // port: redisConfig.PORT,
+    // username: redisConfig.USER,
+    // password: redisConfig.PASSWORD,
+    reconnectOnError: (err: Error) => {
+        const targetError = 'READONLY';
+        if (err.message && err.message.slice(0, targetError.length) === targetError) {
+            // Redis가 READONLY 상태이면 재연결을 시도하도록 설정
+            return true;
+        }
+        return false;
+    },
+    showFriendlyErrorStack: true,
+});
 
-export const redisConnection = new Redis(process.env.REDIS_URL || 'redis://noderedis:6379/0');
+// export const redisConnection = new Redis(process.env.REDIS_URL || 'redis://noderedis:6379/0');
 
 // export const redisConnection = new Cluster(
 //     [
