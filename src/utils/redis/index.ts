@@ -21,7 +21,7 @@ import { redisConfig } from '@/config';
 //     showFriendlyErrorStack: true,
 // });
 
-export const redisConnection = new Redis(process.env.REDIS_URL || 'redis://topic-redis:6379/0');
+export const redisConnection = new Redis(process.env.REDIS_URL || 'redis://noderedis:6379/0');
 
 // export const redisConnection = new Cluster(
 //     [
