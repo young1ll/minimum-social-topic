@@ -14,9 +14,9 @@ services:
     topic-redis:
         container_name: 'noderedis'
         image: redis:alpine
-        volumes:
-            - /usr/local/etc/redis/redis.conf:/usr/local/etc/redis/redis.conf
-        command: redis-server /usr/local/etc/redis/redis.conf
+        # volumes:
+        # - /usr/local/etc/redis/redis.conf:/usr/local/etc/redis/redis.conf
+        # command: redis-server /usr/local/etc/redis/redis.conf
         # extra_hosts:
         #     - 'host.docker.internal'
         # ports:
